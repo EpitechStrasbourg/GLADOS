@@ -1,0 +1,14 @@
+{
+    "PGE1": {
+        "modules": [
+            "B-CPE",
+            "B-PSU"
+        ]
+    },
+    "PGE2": {
+        "modules": [
+            "B-CCP",
+            "B-PSU"
+        ]
+    }
+}
