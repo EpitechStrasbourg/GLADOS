@@ -8,19 +8,25 @@
     "dev": "cross-env NODE_ENV=development nodemon",
     "build": "tsup && tsc-alias",
     "start": "cross-env NODE_ENV=production node ./dist/index.js",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "db:migrate": "npm run build && node dist/database/database.migrate.js"
   },
   "dependencies": {
     "chalk": "4.1.2",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
     "fs-extra": "^11.2.0",
+    "pg": "^8.11.5",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.3",
+    "umzug": "^2.3.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.11.20",
+    "@types/umzug": "^2.3.7",
     "cross-env": "^7.0.3",
     "nodemon": "^3.1.0",
     "prettier": "^3.2.5",

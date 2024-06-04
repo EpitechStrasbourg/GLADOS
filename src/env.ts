@@ -6,6 +6,16 @@ import { Logger } from "./lib/logger"
 dotenv.config()
 
 const envSchema = z.object({
+  SEQUELIZE_LOGGING: z.string().transform((val) => {
+    const lower = val.toLowerCase()
+    if (lower === "true" || lower === "1") return true
+    return false
+  }),
+  POSTGRES_USER: z.string(),
+  POSTGRES_PASSWORD: z.string(),
+  POSTGRES_DB: z.string(),
+  POSTGRES_HOST: z.string(),
+  POSTGRES_PORT: z.string(),
   DISCORD_TOKEN: z.string(),
   DISCORD_APP_ID: z.string(),
   DEBUG: z.string().transform((val) => {
