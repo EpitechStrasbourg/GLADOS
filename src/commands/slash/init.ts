@@ -23,7 +23,7 @@ const command: SlashCommand = {
 
     const file = await axios.get(config!.attachment!.url)
 
-    const configModule = new ConfigModule(file.data, interaction.guild!)
+    const configModule = new ConfigModule(interaction.guild!, file.data)
 
     await interaction.reply({
       content: "Config file loaded successfully",

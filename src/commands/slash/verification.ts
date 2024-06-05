@@ -24,10 +24,15 @@ const command: SlashCommand = {
     await interaction.deferReply({ ephemeral: true })
 
     const code: number = interaction.options.get("code")?.value as number
-    Logger.debug("info", `verificationCodeHandler called by ${interaction.user.id} with code ${code}`)
+    Logger.debug(
+      "info",
+      `verificationCodeHandler called by ${interaction.user.id} with code ${code}`
+    )
 
     try {
-      const student = await Student.findOne({ where: { verificationCode: code } })
+      const student = await Student.findOne({
+        where: { verificationCode: code },
+      })
 
       if (!student) {
         interaction.editReply("Code de vérification invalide.")
@@ -38,7 +43,6 @@ const command: SlashCommand = {
     } catch (error) {
       Logger.error("error", `Error while verifying code: ${error}`)
       interaction.editReply("Erreur lors de la vérification du code.")
-    
     }
   },
 }
