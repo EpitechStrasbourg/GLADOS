@@ -4,6 +4,10 @@ export default class Student extends Model {
   public static definition(sequelize: Sequelize) {
     Student.init(
       {
+        discordId: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
         login: {
           type: DataTypes.STRING,
           allowNull: false,
@@ -11,6 +15,10 @@ export default class Student extends Model {
         },
         cursus: {
           type: DataTypes.STRING,
+          allowNull: true,
+        },
+        verificationCode: {
+          type: DataTypes.INTEGER,
           allowNull: false,
         },
       },
