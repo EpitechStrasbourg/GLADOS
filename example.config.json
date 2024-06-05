@@ -1,14 +1,15 @@
 {
     "PGE1": {
+        "promotion_year": 2028,
         "modules": [
-            "B-CPE",
-            "B-PSU"
+            {
+                "name": "B-CPE",
+                "sub_modules": [
+                    "B-CPE-100",
+                    "B-CPE-200",
+                    "B-CPE-300"
+                ]
+            }
         ]
-    },
-    "PGE2": {
-        "modules": [
-            "B-CCP",
-            "B-PSU"
-        ]
-    }
+    } 
 }

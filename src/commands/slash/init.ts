@@ -8,12 +8,6 @@ const config: SlashCommandConfig = {
   usage: "/init",
   options: [
     {
-      name: "pge1_current",
-      description: "PGE1 current year",
-      type: "NUMBER",
-      required: true,
-    },
-    {
       name: "config_file",
       description: "The .json config file",
       type: "ATTACHMENT",
@@ -26,18 +20,17 @@ const command: SlashCommand = {
   // permissions: 0,
   execute: async (interaction) => {
     const config = interaction.options.get("config_file")
-    const year = interaction.options.get("pge1_current")
 
     const file = await axios.get(config!.attachment!.url)
 
-    const configModule = new ConfigModule(file.data, year!.value as number)
+    const configModule = new ConfigModule(file.data, interaction.guild!)
 
     await interaction.reply({
       content: "Config file loaded successfully",
       ephemeral: true,
     })
 
-    await configModule.initChannels(interaction)
+    await configModule.processConfig()
 
     await interaction.editReply({ content: "Channels created successfully" })
   },
