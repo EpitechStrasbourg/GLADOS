@@ -1,9 +1,13 @@
-import { DataTypes, Model, Sequelize } from 'sequelize';
+import { DataTypes, Model, Sequelize } from "sequelize"
 
 export default class Student extends Model {
   public static definition(sequelize: Sequelize) {
     Student.init(
       {
+        discordId: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
         login: {
           type: DataTypes.STRING,
           allowNull: false,
@@ -11,33 +15,35 @@ export default class Student extends Model {
         },
         cursus: {
           type: DataTypes.STRING,
+          allowNull: true,
+        },
+        verificationCode: {
+          type: DataTypes.INTEGER,
           allowNull: false,
         },
       },
       {
-        tableName: 'student',
+        tableName: "student",
         sequelize,
-      },
-    );
+      }
+    )
   }
 
-  public static associate() {
-
-  }
+  public static associate() {}
 
   /* fields */
 
-  public displayName!: string;
+  public displayName!: string
 
-  public promo!: string;
+  public promo!: string
 
-  public login!: string;
+  public login!: string
 
   /* auto-generated fields */
 
-  public id!: number;
+  public id!: number
 
-  public createdAt!: Date;
+  public createdAt!: Date
 
-  public updatedAt!: Date;
+  public updatedAt!: Date
 }

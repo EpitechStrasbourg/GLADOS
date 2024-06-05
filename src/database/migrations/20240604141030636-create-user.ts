@@ -1,12 +1,16 @@
-import { QueryInterface, Sequelize, DataTypes } from 'sequelize';
+import { DataTypes, QueryInterface, Sequelize } from "sequelize"
 
 export default {
   up: async (queryInterface: QueryInterface, sequelize: Sequelize) => {
-    queryInterface.createTable('user', {
+    queryInterface.createTable("student", {
       id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
+      },
+      discordId: {
+        type: DataTypes.STRING,
+        allowNull: false,
       },
       login: {
         type: DataTypes.STRING,
@@ -15,21 +19,25 @@ export default {
       },
       cursus: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
+      },
+      verificationCode: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
       },
       updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
       },
-    });
+    })
   },
   down: async (queryInterface: QueryInterface, sequelize: Sequelize) => {
-    // Delete your modifications here.
-  }
+    queryInterface.dropTable("student")
+  },
 }
