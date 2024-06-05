@@ -64,7 +64,7 @@ const command: SlashCommand = {
         `loginHandler: ${interaction.user.id} with email ${email} verification code: ${verificationCode} sent`
       )
       interaction.editReply(
-        "Un code de vérification a été envoyé sur ton adresse mail Epitech.\nRentre le à l'aide de la commande **/verification_code**."
+        "Un code de vérification a été envoyé sur ton adresse mail Epitech.\nRentre le à l'aide de la commande **/verification**."
       )
     } catch (e) {
       interaction.editReply("Une erreur est survenue.")
