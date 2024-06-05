@@ -1,5 +1,4 @@
 import { Student } from "@/database/models"
-
 import { SlashCommand, SlashCommandConfig } from "@/types/command"
 import { Logger } from "@/lib/logger"
 
