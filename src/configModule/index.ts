@@ -11,14 +11,19 @@ import {
   Role,
 } from "discord.js"
 
+
+interface ChannelConfig {
+  name: string;
+  type: "GuildAnnouncement" | "GuildText" | "GuildForum";
+};
 interface Module {
   name: string
   sub_modules: string[]
 }
 
 interface Promotion {
-  promotion_year: number
   modules: Module[]
+  channels: ChannelConfig[] 
 }
 
 interface Config {
@@ -34,18 +39,42 @@ export default class ConfigModule {
     this._config = config
   }
 
+  formatChannelName(name: string): string {
+    return name.toLowerCase().trim().replaceAll(" ", "-")
+  }
+
+  typeToChannelType(type: string): ChannelType.GuildAnnouncement | ChannelType.GuildText | ChannelType.GuildForum {
+    if (type === "GuildAnnouncement") return ChannelType.GuildAnnouncement
+    if (type === "GuildText") return ChannelType.GuildText
+    if (type === "GuildForum") return ChannelType.GuildForum
+    return ChannelType.GuildText
+  }
+
   getPromoFromYear(year: number): number {
-    if (year === 1) return 2028
+    if (year === 1) return 2029
     if (year === 2) return 2027
     if (year === 3) return 2026
     return 0
   }
 
+  formatConfig = () => {
+    for (const key of Object.keys(this._config)) {
+      for (const module of this._config[key].modules) {
+        module.name = this.formatChannelName(module.name)
+      }
+      for (const channel of this._config[key].channels) {
+        channel.name = this.formatChannelName(channel.name)
+      }
+    }
+  }
+
+  
   async processConfig() {
     if (!this._guild) {
       throw new Error("Guild not found.")
     }
 
+    this.formatConfig()
     for (const key of Object.keys(this._config)) {
       const year = this.getPromoFromYear(parseInt(key.split("_")[1]))
       const promotionName = key.split("_")[0] + "_" + year.toString()
@@ -57,21 +86,21 @@ export default class ConfigModule {
       })
 
       let role = roles.find((role) => role!.name === promotionName)
-      await this.initCommonChannels(category!, role!)
+      await this.initChannels(category!, this._config[key]["channels"]  ,role!)
       await this.initModules(category!, this._config[key]["modules"], key)
-      await this.sortChannels(category!)
+      await this.sortChannels(category!, this._config[key]["channels"])
     }
   }
 
-  async sortChannels(category: CategoryChannel) {
+  async sortChannels(category: CategoryChannel, channelsConfig: ChannelConfig[]) {
     if (!this._guild) {
       throw new Error("Guild not found.")
     }
-
+  
     const channels = await this._guild.channels.fetch(undefined, {
       force: true,
     })
-
+  
     const arrayChannel = [] as Exclude<
       Channel,
       | DMChannel
@@ -80,49 +109,35 @@ export default class ConfigModule {
       | PrivateThreadChannel
       | PublicThreadChannel
     >[]
-
+  
     channels.forEach((channel) => {
       if (channel && channel.parentId === category.id) {
         arrayChannel.push(channel)
       }
     })
-
-    const annonceChannel = arrayChannel.find(
-      (channel) => channel.name === "📣・annonces"
+  
+    const configChannels = arrayChannel.filter((channel) =>
+      channelsConfig.some((config) => config.name === channel.name)
     )
-    const generalChannel = arrayChannel.find(
-      (channel) => channel.name === "💬・general"
-    )
+  
     const otherChannels = arrayChannel.filter(
-      (channel) =>
-        channel.name !== "📣・annonces" && channel.name !== "💬・general"
+      (channel) => !channelsConfig.some((config) => config.name === channel.name)
     )
-
-    const sortedChannels = otherChannels.sort((a, b) =>
+  
+    const sortedOtherChannels = otherChannels.sort((a, b) =>
       a.name!.localeCompare(b.name!)
     )
-
+  
     const orderedChannels = [
-      annonceChannel,
-      generalChannel,
-      ...sortedChannels,
-    ].filter(
-      (
-        channel
-      ): channel is Exclude<
-        Channel,
-        | DMChannel
-        | PartialDMChannel
-        | PartialGroupDMChannel
-        | PrivateThreadChannel
-        | PublicThreadChannel
-      > => !!channel
-    )
-
+      ...configChannels,
+      ...sortedOtherChannels,
+    ]
+  
     for (let i = 0; i < orderedChannels.length; i++) {
       await orderedChannels[i].setPosition(i)
     }
   }
+  
 
   async initCategory(name: string): Promise<CategoryChannel | null> {
     if (!this._guild) {
@@ -169,7 +184,7 @@ export default class ConfigModule {
     })
   }
 
-  async initCommonChannels(category: CategoryChannel, role: Role) {
+  async initChannels(category: CategoryChannel, channelsConfig: ChannelConfig[], role: Role) {
     if (!this._guild) {
       throw new Error("Guild not found.")
     }
@@ -178,33 +193,35 @@ export default class ConfigModule {
       force: true,
     })
 
-    const annonceChannel = channels.find(
-      (channel) =>
-        channel!.type === ChannelType.GuildAnnouncement &&
-        channel!.name === "📣・annonces" &&
-        channel!.parentId === category.id
-    )
 
-    if (!annonceChannel) {
+    for (const channelConfig of channelsConfig) {
+
+      const existingChannel = channels.find(
+        (channel) => {
+          return channel!.type === this.typeToChannelType(channelConfig.type) &&
+          channel!.name === channelConfig.name &&
+          channel!.parentId === category.id
+        }
+      )
+
+      if (existingChannel) {
+        continue
+      }
+
       await this._guild.channels.create({
-        name: "📣・annonces",
-        type: ChannelType.GuildAnnouncement,
+        name: channelConfig.name,
+        type: this.typeToChannelType(channelConfig.type),
         parent: category,
-      })
-    }
-
-    const generalChannel = channels.find(
-      (channel) =>
-        channel!.type === ChannelType.GuildText &&
-        channel!.name === "💬・general" &&
-        channel!.parentId === category.id
-    )
-
-    if (!generalChannel) {
-      await this._guild.channels.create({
-        name: "💬・general",
-        type: ChannelType.GuildText,
-        parent: category,
+        permissionOverwrites: [
+          {
+            deny: ["ViewChannel"],
+            id: this._guild.id,
+          },
+          {
+            allow: ["ViewChannel"],
+            id: role.id,
+          },
+        ],
       })
     }
   }
@@ -225,11 +242,11 @@ export default class ConfigModule {
         force: true,
       })
       let role = roles.find(
-        (role) => role!.name === `${module.name}_${promotion_year}`
+        (role) => role!.name === `${promotion_year}_${module.name}`
       )
       if (!role) {
         role = await this._guild.roles.create({
-          name: `${module.name}_${promotion_year}`,
+          name:`${promotion_year}_${module.name}`,
         })
       }
 
@@ -237,13 +254,11 @@ export default class ConfigModule {
         force: true,
       })
 
-      for (const sub_module of module.sub_modules) {
-        await new Promise((resolve) => setTimeout(resolve, 1000))
 
         const existingChannel = channels.find(
           (channel) =>
             channel!.type === ChannelType.GuildForum &&
-            channel!.name.toLowerCase() === sub_module.toLocaleLowerCase() &&
+            channel!.name === module.name &&
             channel!.parentId === category.id
         )
         if (existingChannel) {
@@ -251,7 +266,7 @@ export default class ConfigModule {
         }
 
         await this._guild.channels.create({
-          name: `${sub_module}`,
+          name: `${module.name}`,
           type: ChannelType.GuildForum,
           parent: category,
           permissionOverwrites: [
@@ -266,6 +281,5 @@ export default class ConfigModule {
           ],
         })
       }
-    }
   }
 }

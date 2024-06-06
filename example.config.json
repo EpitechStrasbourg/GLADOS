@@ -1,8 +1,22 @@
 {
     "PGE_1": {
+        "channels": [
+            {
+                "name": " TEST CHANNEL LOOOL",
+                "type": "GuildText"
+            },
+            {
+                "name": "📣・annonces",
+                "type": "GuildAnnouncement"
+            },
+            {
+                "name": "💬・general",
+                "type": "GuildText"
+            }
+        ],
         "modules": [
             {
-                "name": "B-CPE",
+                "name": "CPE",
                 "sub_modules": [
                     "B-CPE-100",
                     "B-CPE-200",
