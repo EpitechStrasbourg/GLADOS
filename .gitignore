@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 ### Node ###
 # Logs
 logs
@@ -41,6 +42,8 @@ dist/
 data
 .vscode/
 =======
+=======
+>>>>>>> c6b5c34c6888da4fef3e3303b524689a1be934fe
 ### Node ###
 # Logs
 logs
@@ -81,5 +84,9 @@ dist/
 
 .vscode/
 
+<<<<<<< HEAD
 data/
 >>>>>>> a10dd36 (feat/auth: /login command register user on db and send mail verification code)
+=======
+data/
+>>>>>>> c6b5c34c6888da4fef3e3303b524689a1be934fe
