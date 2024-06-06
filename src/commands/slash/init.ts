@@ -23,7 +23,11 @@ const command: SlashCommand = {
 
     const file = await axios.get(config!.attachment!.url)
 
-    const configModule = new ConfigModule(interaction.guild!, file.data)
+    const configModule = new ConfigModule(
+      interaction.guild!,
+      file.data,
+      interaction
+    )
 
     await interaction.reply({
       content: "Config file loaded successfully",
@@ -32,7 +36,7 @@ const command: SlashCommand = {
 
     await configModule.processConfig()
 
-    await interaction.editReply({ content: "Channels created successfully" })
+    await interaction.editReply({ content: "Config updated successfully." })
   },
 }
 

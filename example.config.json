@@ -2,15 +2,19 @@
     "PGE_1": {
         "channels": [
             {
-                "name": " TEST CHANNEL LOOOL",
-                "type": "GuildText"
-            },
-            {
                 "name": "📣・annonces",
                 "type": "GuildAnnouncement"
             },
             {
+                "name": " TEST CHANNEL LOOOL",
+                "type": "GuildText"
+            },
+            {
                 "name": "💬・general",
+                "type": "GuildText"
+            },
+            {
+                "name": "YOUHOULOUd",
                 "type": "GuildText"
             }
         ],
