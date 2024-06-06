@@ -12,7 +12,7 @@ const client = DiscordClient.getInstance({
   intents: [
     GatewayIntentBits.Guilds,
     IntentsBitField.Flags.Guilds,
-    IntentsBitField.Flags.GuildVoiceStates
+    IntentsBitField.Flags.GuildVoiceStates,
   ],
 })
 
