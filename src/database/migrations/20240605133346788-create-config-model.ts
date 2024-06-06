@@ -2,28 +2,16 @@ import { DataTypes, QueryInterface, Sequelize } from "sequelize"
 
 export default {
   up: async (queryInterface: QueryInterface, sequelize: Sequelize) => {
-    queryInterface.createTable("student", {
+    queryInterface.createTable("config", {
       id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
-      discordId: {
-        type: DataTypes.STRING,
+      config: {
+        type: DataTypes.JSONB,
+        defaultValue: {},
         allowNull: false,
-      },
-      login: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      cursus: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      verificationCode: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -38,6 +26,6 @@ export default {
     })
   },
   down: async (queryInterface: QueryInterface, sequelize: Sequelize) => {
-    queryInterface.dropTable("student")
+    queryInterface.dropTable("config")
   },
 }

@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   glados_database:
     image: postgres:13
