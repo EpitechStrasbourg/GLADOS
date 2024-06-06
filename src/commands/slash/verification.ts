@@ -21,11 +21,19 @@ const command: SlashCommand = {
     await interaction.deferReply({ ephemeral: true })
 
     const code: number = interaction.options.get("code")?.value as number
-    Logger.debug("info", `verificationCodeHandler called by ${interaction.user.id} with code ${code}`)
+    Logger.debug(
+      "info",
+      `verificationCodeHandler called by ${interaction.user.id} with code ${code}`
+    )
 
     try {
-      const student = await Student.findOne({ where: { verificationCode: code }, raw: false })
-      Logger.debug("info", `verificationCodeHandler: ${interaction.user.id} with code ${code}, student ${JSON.stringify(student)}`)
+      const student = await Student.findOne({
+        where: { verificationCode: code },
+      })
+      Logger.debug(
+        "info",
+        `verificationCodeHandler: ${interaction.user.id} with code ${code}, student ${JSON.stringify(student)}`
+      )
       if (!student) {
         interaction.editReply("Code de vérification invalide.")
         return
@@ -33,30 +41,67 @@ const command: SlashCommand = {
       const login = student.getDataValue("login")
       Logger.debug("info", `${login}`)
       const config = {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `${process.env.SAURON_TOKEN}`
-        }
+          "Content-Type": "application/json",
+          Authorization: `${process.env.SAURON_TOKEN}`,
+        },
       }
-      const response = await fetch(`https://api.sauron.epitest.eu/api/users/${login}/infos`, config)
-      Logger.debug("info", `verificationCodeHandler: ${interaction.user.id} with code ${code}, login ${login}, response: ${response.status} ${JSON.stringify(response)}`)
-      if (!response.ok) {
-        interaction.editReply(`Erreur lors de la vérification du code. fetch failed ${response.status}.`)
-        return
-      }
-      const data = await response.json()
-      Logger.debug("info", `verificationCodeHandler: ${interaction.user.id} with code ${code}, login ${login}, data: ${data}`)
-      if (data.error) {
-        interaction.editReply("Erreur lors de la vérification du code.")
-        return
-      }
+      // const response = await fetch(
+      //   `https://api.sauron.epitest.eu/api/users/${login}/infos`,
+      //   config
+      // )
+      // Logger.debug(
+      //   "info",
+      //   `verificationCodeHandler: ${interaction.user.id} with code ${code}, login ${login}, response: ${response.status} ${JSON.stringify(response)}`
+      // )
+      // if (!response.ok) {
+      //   interaction.editReply(
+      //     `Erreur lors de la vérification du code. fetch failed ${response.status}.`
+      //   )
+      //   return
+      // }
+      // const data = await response.json()
+      // Logger.debug(
+      //   "info",
+      //   `verificationCodeHandler: ${interaction.user.id} with code ${code}, login ${login}, data: ${data}`
+      // )
+      // if (data.error) {
+      //   interaction.editReply("Erreur lors de la vérification du code.")
+      //   return
+      // }
+    const data = {
+      "login": "tristan.distretti@epitech.eu",
+      "cities": [
+          {
+              "code": "FR/STG",
+              "name": "Strasbourg"
+          }
+      ],
+      "roles": [
+          "student"
+      ],
+      "promo": {
+          "city": {
+              "code": "FR/STG",
+              "name": "Strasbourg"
+          },
+          "cursus": {
+              "code": "bachelor",
+              "name": "bachelor"
+          },
+          "promotion_year": 2026,
+          "subpromo": "classic"
+      },
+      "is_active": true,
+      "firstname": "Tristan",
+      "lastname": "DISTRETTI"
+    }
       // attribuer les roles
       interaction.editReply("Compte vérifié avec succès.")
     } catch (error) {
       Logger.error("error", `Error while verifying code: ${error}`)
       interaction.editReply("Erreur lors de la vérification du code.")
-    
     }
   },
 }

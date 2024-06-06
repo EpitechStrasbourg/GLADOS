@@ -1,9 +1,26 @@
 {
-    "PGE1": {
-        "promotion_year": 2028,
+    "PGE_1": {
+        "channels": [
+            {
+                "name": "📣・annonces",
+                "type": "GuildAnnouncement"
+            },
+            {
+                "name": " TEST CHANNEL LOOOL",
+                "type": "GuildText"
+            },
+            {
+                "name": "💬・general",
+                "type": "GuildText"
+            },
+            {
+                "name": "YOUHOULOUd",
+                "type": "GuildText"
+            }
+        ],
         "modules": [
             {
-                "name": "B-CPE",
+                "name": "CPE",
                 "sub_modules": [
                     "B-CPE-100",
                     "B-CPE-200",

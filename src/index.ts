@@ -1,7 +1,7 @@
 import connectToDatabase, { sequelize } from "@/database"
 import { handleEvents } from "@/handlers/eventHandler"
 import { loadSlashCommands } from "@/loaders/slashCommands"
-import { GatewayIntentBits, REST, Routes } from "discord.js"
+import { GatewayIntentBits, IntentsBitField, REST, Routes } from "discord.js"
 
 import { DiscordClient } from "@/lib/client"
 import { Logger } from "@/lib/logger"
@@ -9,7 +9,11 @@ import { Logger } from "@/lib/logger"
 import { env } from "./env"
 
 const client = DiscordClient.getInstance({
-  intents: [GatewayIntentBits.Guilds],
+  intents: [
+    GatewayIntentBits.Guilds,
+    IntentsBitField.Flags.Guilds,
+    IntentsBitField.Flags.GuildVoiceStates,
+  ],
 })
 
 // Refresh application slash commands
