@@ -2,6 +2,7 @@ import ConfigModule from "@/configModule"
 import axios from "axios"
 
 import { SlashCommand, SlashCommandConfig } from "@/types/command"
+import { Logger } from "@/lib/logger"
 
 const config: SlashCommandConfig = {
   description: "Init the channels and roles according to the config",
@@ -34,7 +35,9 @@ const command: SlashCommand = {
       ephemeral: true,
     })
 
+    Logger.info("Processing config file...")
     await configModule.processConfig()
+    Logger.info("Config file processed successfully")
 
     await interaction.editReply({ content: "Config updated successfully." })
   },

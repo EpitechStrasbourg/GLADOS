@@ -12,6 +12,7 @@ import {
 } from "discord.js"
 
 import { SlashCommandInteraction } from "@/types/command"
+import { Logger } from "@/lib/logger"
 
 // Interface for defining the structure of each channel in the configuration file
 // You can add more channel types here if needed but make sure to update the stringToChannelType function
@@ -103,10 +104,9 @@ export default class ConfigModule {
    * @returns The corresponding year as a number.
    */
   private getPromoFromYear(year: number): number {
-    if (year === 1) return 2028
-    if (year === 2) return 2027
-    if (year === 3) return 2026
-    return 0
+    let currentYear = 2024
+
+    return currentYear + 5 - year
   }
 
   /**
@@ -137,11 +137,11 @@ export default class ConfigModule {
   async processConfig() {
     this.formatConfig()
 
+    Logger.info("Processing categories...")
     for (const key of Object.keys(this._config)) {
       if (key === "*") continue
       if (!key.includes("_") || key.split("_").length !== 2)
         throw new Error(`Invalid key: ${key}`)
-      const configPromotion = this._config[key] as ConfigFilePromotion
 
       const year = this.getPromoFromYear(parseInt(key.split("_")[1]))
       const promotionName = `${key.split("_")[0]} ${year}`
@@ -153,9 +153,11 @@ export default class ConfigModule {
       this._category.push(category!)
     }
 
+    Logger.info("Processing common...")
     await this.generateCommonForPromotion()
-
+    Logger.info("Processing promotions...")
     for (const key of Object.keys(this._config)) {
+      Logger.info(`Processing ${key}...`)
       if (key === "*") continue
       if (!key.includes("_") || key.split("_").length !== 2)
         throw new Error(`Invalid key: ${key}`)
@@ -176,7 +178,7 @@ export default class ConfigModule {
 
       // Initialize the channels and modules in the category
       await this.initChannels(category, configPromotion.channels, role)
-      await this.initModules(category, configPromotion.modules, promotionName)
+      await this.initModules(category, configPromotion.modules, key)
 
       // Delete module and channels that are not in the configuration
       await this.deleteCategoryModuleNotInConfig(category, key)
@@ -184,6 +186,7 @@ export default class ConfigModule {
       await this.deleteCommonChannelsNotInConfig(category, key)
 
       // Sort the channels in the category according to the configuration
+      Logger.info(`Sorting channels for ${category.name}...`)
       await this.sortChannels(
         category,
         configPromotion.channels,
@@ -191,6 +194,7 @@ export default class ConfigModule {
       )
     }
     await new Promise((resolve) => setTimeout(resolve, 2000))
+    Logger.info("Processing not found categories...")
     await this.processNotFoundCategory()
   }
 
@@ -237,12 +241,11 @@ export default class ConfigModule {
         category.type === ChannelType.GuildCategory &&
         category.name.includes("➖➖PROMOTION")
     )
+    const channels = await this._guild.channels.fetch(undefined, {
+      force: true,
+    })
     for (const category of categoryPromotions.values()) {
       if (!this._category.some((c) => c.id === category!.id)) {
-        const channels = await this._guild.channels.fetch(undefined, {
-          force: true,
-        })
-
         const commonChannels = this._config["*"] as ConfigFileChannel[]
 
         for (const channel of channels.values()) {
@@ -274,11 +277,10 @@ export default class ConfigModule {
 
     const commonChannels = this._config["*"] as ConfigFileChannel[]
 
+    const channels = await this._guild.channels.fetch(undefined, {
+      force: true,
+    })
     for (const category of categoryPromotions.values()) {
-      const channels = await this._guild.channels.fetch(undefined, {
-        force: true,
-      })
-
       for (const channelConfig of commonChannels) {
         const existingChannel = channels.find(
           (channel) =>
@@ -380,10 +382,11 @@ export default class ConfigModule {
 
       // Set their positions based on the combined order
       for (let i = 0; i < orderedChannels.length; i++) {
+        if (orderedChannels[i].rawPosition === i) continue
         await orderedChannels[i].setPosition(i)
       }
 
-      this._interaction.editReply({
+      await this._interaction.editReply({
         content: `Channels sorted for ${category.name}`,
       })
     } catch (err) {
@@ -408,9 +411,7 @@ export default class ConfigModule {
 
       if (existingChannel) return existingChannel
 
-      const role = await this.findOrCreateRole(
-        name.toUpperCase().replace(/ /g, "_")
-      )
+      const role = await this.findOrCreateRole(name)
 
       return await this._guild.channels.create({
         name: `➖➖PROMOTION ${name}➖➖`,
@@ -501,7 +502,7 @@ export default class ConfigModule {
 
       for (const module of modules) {
         const role = await this.findOrCreateRole(
-          `${promotionName}_${module.name}`
+          `${promotionName.split("_").join("")} ${module.name.toUpperCase()}`
         )
 
         const existingChannel = channels.find(
@@ -552,7 +553,7 @@ export default class ConfigModule {
         role = await this._guild.roles.create({
           name: roleName,
         })
-        this._interaction.editReply({
+        await this._interaction.editReply({
           content: `Role ${roleName} created`,
         })
       }

@@ -14,6 +14,58 @@
             }
         ]
     },
+    "PGE_2": {
+        "channels": [
+
+        ],
+        "modules": [
+            {
+                "name": "PSU",
+                "sub_modules": [
+                    "B-CPE-100",
+                    "B-CPE-200",
+                    "B-CPE-300"
+                ]
+            }
+        ]
+    },
+    "PGE_3": {
+        "channels": [
+
+        ],
+        "modules": [
+            {
+                "name": "MUL",
+                "sub_modules": [
+                    "B-CPE-100",
+                    "B-CPE-200",
+                    "B-CPE-300"
+                ]
+            }
+        ]
+    },
+    "PGE_4": {
+        "channels": [
+            {
+                "type": "GuildText",
+                "name": "etranger"
+            }
+        ],
+        "modules": [
+
+        ]
+    },
+    "PGE_5": {
+        "channels": [
+            {
+                "type": "GuildText",
+                "name": "paris"
+            }
+        ],
+        "modules": [
+
+        ]
+    },
     "*": [
         {
             "name": "📣・annonces",
