@@ -4,7 +4,6 @@ import {
   ChannelType,
   DMChannel,
   Guild,
-  Interaction,
   PartialDMChannel,
   PartialGroupDMChannel,
   PrivateThreadChannel,
@@ -35,7 +34,8 @@ interface ConfigFilePromotion {
 
 // Interface for the overall configuration file structure
 interface ConfigFile {
-  [key: string]: ConfigFilePromotion
+  [key: string]: ConfigFilePromotion | ConfigFileChannel[]
+  "*": ConfigFileChannel[]
 }
 
 // Class to handle the configuration and initialization of Discord server categories, channels, and roles
@@ -43,6 +43,7 @@ export default class ConfigModule {
   private _config: ConfigFile
   private _guild: Guild
   private _interaction: SlashCommandInteraction
+  private _category: CategoryChannel[]
 
   /**
    * Constructor to initialize the ConfigModule with the guild and configuration file.
@@ -61,6 +62,7 @@ export default class ConfigModule {
     this._guild = guild
     this._config = config
     this._interaction = interaction
+    this._category = [] as CategoryChannel[]
   }
 
   /**
@@ -113,10 +115,17 @@ export default class ConfigModule {
    */
   private formatConfig() {
     Object.keys(this._config).forEach((key) => {
-      this._config[key].modules.forEach((module) => {
+      if (key === "*") {
+        ;(this._config[key] as ConfigFileChannel[]).forEach((channel) => {
+          channel.name = this.formatChannelName(channel.name)
+        })
+        return
+      }
+      const configPromotion = this._config[key] as ConfigFilePromotion
+      configPromotion.modules.forEach((module) => {
         module.name = this.formatChannelName(module.name)
       })
-      this._config[key].channels.forEach((channel) => {
+      configPromotion.channels.forEach((channel) => {
         channel.name = this.formatChannelName(channel.name)
       })
     })
@@ -129,12 +138,32 @@ export default class ConfigModule {
     this.formatConfig()
 
     for (const key of Object.keys(this._config)) {
+      if (key === "*") continue
       if (!key.includes("_") || key.split("_").length !== 2)
         throw new Error(`Invalid key: ${key}`)
+      const configPromotion = this._config[key] as ConfigFilePromotion
+
+      const year = this.getPromoFromYear(parseInt(key.split("_")[1]))
+      const promotionName = `${key.split("_")[0]} ${year}`
+
+      const category = await this.initCategory(promotionName)
+
+      if (!category)
+        throw new Error(`Failed to initialize category for ${promotionName}`)
+      this._category.push(category!)
+    }
+
+    await this.generateCommonForPromotion()
+
+    for (const key of Object.keys(this._config)) {
+      if (key === "*") continue
+      if (!key.includes("_") || key.split("_").length !== 2)
+        throw new Error(`Invalid key: ${key}`)
+      const configPromotion = this._config[key] as ConfigFilePromotion
 
       // Extract the promotion name and year
       const year = this.getPromoFromYear(parseInt(key.split("_")[1]))
-      const promotionName = `${key.split("_")[0]}_${year}`
+      const promotionName = `${key.split("_")[0]} ${year}`
 
       // Initialize or find the category for the promotion
       const category = await this.initCategory(promotionName)
@@ -146,15 +175,130 @@ export default class ConfigModule {
       const role = await this.findOrCreateRole(promotionName)
 
       // Initialize the channels and modules in the category
-      await this.initChannels(category, this._config[key].channels, role)
-      await this.initModules(category, this._config[key].modules, promotionName)
+      await this.initChannels(category, configPromotion.channels, role)
+      await this.initModules(category, configPromotion.modules, promotionName)
 
       // Delete module and channels that are not in the configuration
       await this.deleteCategoryModuleNotInConfig(category, key)
       await this.deleteChannelNotInConfig(category, key)
+      await this.deleteCommonChannelsNotInConfig(category, key)
 
       // Sort the channels in the category according to the configuration
-      await this.sortChannels(category, this._config[key].channels)
+      await this.sortChannels(
+        category,
+        configPromotion.channels,
+        this._config["*"]
+      )
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    await this.processNotFoundCategory()
+  }
+
+  async deleteCommonChannelsNotInConfig(
+    category: CategoryChannel,
+    key: string
+  ) {
+    const channels = await this._guild.channels.fetch(undefined, {
+      force: true,
+    })
+
+    const commonChannels = this._config["*"] as ConfigFileChannel[]
+    const configChannels = (this._config[key] as ConfigFilePromotion).channels
+    const modules = (this._config[key] as ConfigFilePromotion).modules
+
+    for (const channel of channels.values()) {
+      if (channel!.parentId === category.id) {
+        const configChannel = configChannels.find(
+          (c) => c.name === channel!.name
+        )
+        const module = modules.find((m) => m.name === channel!.name)
+        if (
+          !configChannel &&
+          !module &&
+          !commonChannels.some((c) => c.name === channel!.name)
+        ) {
+          await channel!.delete()
+          await this._interaction.editReply({
+            content: `Channel ${channel!.name} deleted`,
+          })
+        }
+      }
+    }
+  }
+
+  async processNotFoundCategory() {
+    const categories = await this._guild.channels.fetch(undefined, {
+      force: true,
+    })
+
+    const categoryPromotions = categories.filter(
+      (category) =>
+        category &&
+        category.type === ChannelType.GuildCategory &&
+        category.name.includes("➖➖PROMOTION")
+    )
+    for (const category of categoryPromotions.values()) {
+      if (!this._category.some((c) => c.id === category!.id)) {
+        const channels = await this._guild.channels.fetch(undefined, {
+          force: true,
+        })
+
+        const commonChannels = this._config["*"] as ConfigFileChannel[]
+
+        for (const channel of channels.values()) {
+          if (channel!.parentId === category!.id) {
+            if (!commonChannels.some((c) => c.name === channel!.name)) {
+              await channel!.delete()
+              await this._interaction.editReply({
+                content: `Channel ${channel!.name} deleted`,
+              })
+            }
+          }
+        }
+        this.sortChannels(category as CategoryChannel, [], [])
+      }
+    }
+  }
+
+  async generateCommonForPromotion() {
+    const categories = await this._guild.channels.fetch(undefined, {
+      force: true,
+    })
+
+    const categoryPromotions = categories.filter(
+      (category) =>
+        category &&
+        category.type === ChannelType.GuildCategory &&
+        category.name.includes("➖➖PROMOTION")
+    )
+
+    const commonChannels = this._config["*"] as ConfigFileChannel[]
+
+    for (const category of categoryPromotions.values()) {
+      const channels = await this._guild.channels.fetch(undefined, {
+        force: true,
+      })
+
+      for (const channelConfig of commonChannels) {
+        const existingChannel = channels.find(
+          (channel) =>
+            channel &&
+            channel.type === this.stringToChannelType(channelConfig.type) &&
+            channel.name === channelConfig.name &&
+            channel.parentId === category!.id
+        )
+
+        if (!existingChannel) {
+          await this._guild.channels.create({
+            name: channelConfig.name,
+            type: this.stringToChannelType(channelConfig.type),
+            parent: category as CategoryChannel,
+          })
+          await this._interaction.editReply({
+            content: `Channel ${channelConfig.name} created`,
+          })
+        }
+      }
     }
   }
 
@@ -166,7 +310,8 @@ export default class ConfigModule {
    */
   private async sortChannels(
     category: CategoryChannel,
-    channelsConfig: ConfigFileChannel[]
+    channelsConfig: ConfigFileChannel[],
+    commonChannels: ConfigFileChannel[]
   ) {
     try {
       const channels = await this._guild.channels.fetch(undefined, {
@@ -188,39 +333,61 @@ export default class ConfigModule {
         }
       })
 
-      // Separate channels based on whether they are in the config or not
-      const configChannels = categorizedChannels.filter((channel) =>
-        channelsConfig.some((config) => config.name === channel.name)
+      // Separate common channels based on whether they are in the commonChannels config
+      const commonConfigChannels = categorizedChannels.filter((channel) =>
+        commonChannels.some((config) => config.name === channel.name)
       )
 
-      // Sort config channels based on their order in the configuration
-      configChannels.sort(
+      // Separate remaining config channels not in the commonChannels
+      const otherConfigChannels = categorizedChannels.filter(
+        (channel) =>
+          !commonChannels.some((config) => config.name === channel.name) &&
+          channelsConfig.some((config) => config.name === channel.name)
+      )
+
+      // Remaining channels not in any of the configs
+      const remainingChannels = categorizedChannels.filter(
+        (channel) =>
+          !commonChannels.some((config) => config.name === channel.name) &&
+          !channelsConfig.some((config) => config.name === channel.name)
+      )
+
+      // Maintain the order of common channels as provided
+      const orderedCommonChannels = commonConfigChannels.sort(
+        (a, b) =>
+          commonChannels.findIndex((config) => config.name === a.name) -
+          commonChannels.findIndex((config) => config.name === b.name)
+      )
+
+      // Maintain the order of other channels as provided
+      const orderedOtherConfigChannels = otherConfigChannels.sort(
         (a, b) =>
           channelsConfig.findIndex((config) => config.name === a.name) -
           channelsConfig.findIndex((config) => config.name === b.name)
       )
 
-      // Other channels not in the config are sorted alphabetically
-      const otherChannels = categorizedChannels.filter(
-        (channel) =>
-          !channelsConfig.some((config) => config.name === channel.name)
-      )
-
-      const sortedOtherChannels = otherChannels.sort((a, b) =>
+      // Sort remaining channels alphabetically
+      const sortedRemainingChannels = remainingChannels.sort((a, b) =>
         a.name!.localeCompare(b.name!)
       )
 
-      // Combine ordered channels and set their positions
-      const orderedChannels = [...configChannels, ...sortedOtherChannels]
+      // Combine ordered channels in the specified order
+      const orderedChannels = [
+        ...orderedCommonChannels,
+        ...orderedOtherConfigChannels,
+        ...sortedRemainingChannels,
+      ]
 
+      // Set their positions based on the combined order
       for (let i = 0; i < orderedChannels.length; i++) {
         await orderedChannels[i].setPosition(i)
       }
+
       this._interaction.editReply({
         content: `Channels sorted for ${category.name}`,
       })
     } catch (err) {
-      throw new Error(`Failed to sort channels for ${category.name}`)
+      throw new Error(`Failed to sort channels for ${category.name}: ${err}`)
     }
   }
 
@@ -236,15 +403,17 @@ export default class ConfigModule {
       })
 
       const existingChannel = channels.find(
-        (channel) => channel && channel.name === `➖➖PROMOTION_${name}➖➖`
+        (channel) => channel && channel.name === `➖➖PROMOTION ${name}➖➖`
       ) as CategoryChannel
 
       if (existingChannel) return existingChannel
 
-      const role = await this.findOrCreateRole(name.toUpperCase())
+      const role = await this.findOrCreateRole(
+        name.toUpperCase().replace(/ /g, "_")
+      )
 
       return await this._guild.channels.create({
-        name: `➖➖PROMOTION_${name}➖➖`,
+        name: `➖➖PROMOTION ${name}➖➖`,
         type: ChannelType.GuildCategory,
         permissionOverwrites: [
           {
@@ -410,15 +579,20 @@ export default class ConfigModule {
         force: true,
       })
 
+      const commonChannels = this._config["*"] as ConfigFileChannel[]
+
       for (const channel of channels.values()) {
         if (
           channel!.parentId === category.id &&
           channel!.type === ChannelType.GuildForum
         ) {
-          const module = this._config[key].modules.find(
-            (m) => m.name === channel!.name
-          )
-          if (!module) {
+          const module = (
+            this._config[key] as ConfigFilePromotion
+          ).modules.find((m) => m.name === channel!.name)
+          if (
+            !module &&
+            !commonChannels.some((c) => c.name === channel!.name)
+          ) {
             await channel!.delete()
             await this._interaction.editReply({
               content: `Module ${channel!.name} deleted`,
@@ -444,15 +618,21 @@ export default class ConfigModule {
         force: true,
       })
 
+      const configChannels = (this._config[key] as ConfigFilePromotion).channels
+      const commonChannels = this._config["*"] as ConfigFileChannel[]
+
       for (const channel of channels.values()) {
         if (
           channel!.parentId === category.id &&
           channel!.type !== ChannelType.GuildForum
         ) {
-          const configChannel = this._config[key].channels.find(
+          const configChannel = configChannels.find(
             (c) => c.name === channel!.name
           )
-          if (!configChannel) {
+          if (
+            !configChannel &&
+            !commonChannels.some((c) => c.name === channel!.name)
+          ) {
             await channel!.delete()
             await this._interaction.editReply({
               content: `Channel ${channel!.name} deleted`,
