@@ -5,6 +5,7 @@ import {
   ChannelType,
   DMChannel,
   Guild,
+  GuildBasedChannel,
   GuildTextBasedChannel,
   PartialDMChannel,
   PartialGroupDMChannel,
@@ -106,7 +107,7 @@ export default class ConfigModule {
    * @returns The corresponding year as a number.
    */
   private getPromoFromYear(year: number): number {
-    let currentYear = 2024
+    let currentYear = 2026
 
     return currentYear + 5 - year
   }
@@ -138,6 +139,8 @@ export default class ConfigModule {
    */
   async processConfig() {
     this.formatConfig()
+    await this._guild.channels.fetch(undefined, { force: true })
+    await this._guild.roles.fetch(undefined, { force: true })
 
     Logger.info("Processing categories...")
     for (const key of Object.keys(this._config)) {
@@ -206,16 +209,12 @@ export default class ConfigModule {
     category: CategoryChannel,
     key: string
   ) {
-    const channels = await this._guild.channels.fetch(undefined, {
-      force: true,
-    })
-
     const commonChannels = this._config["*"] as ConfigFileChannel[]
     const configChannels = (this._config[key] as ConfigFilePromotion).channels
     const modules = (this._config[key] as ConfigFilePromotion).modules
 
-    for (const channel of channels.values()) {
-      if (channel!.parentId === category.id) {
+    for (const channel of this._guild.channels.cache.values()) {
+      if (channel && channel!.parentId === category.id) {
         const configChannel = configChannels.find(
           (c) => c.name === channel!.name
         )
@@ -235,24 +234,18 @@ export default class ConfigModule {
   }
 
   async processNotFoundCategory() {
-    const categories = await this._guild.channels.fetch(undefined, {
-      force: true,
-    })
-
-    const categoryPromotions = categories.filter(
+    const categoryPromotions = this._guild.channels.cache.filter(
       (category) =>
         category &&
         category.type === ChannelType.GuildCategory &&
         category.name.includes("➖➖PROMOTION")
     )
-    const channels = await this._guild.channels.fetch(undefined, {
-      force: true,
-    })
+
     for (const category of categoryPromotions.values()) {
       if (!this._category.some((c) => c.id === category!.id)) {
         const commonChannels = this._config["*"] as ConfigFileChannel[]
 
-        for (const channel of channels.values()) {
+        for (const channel of this._guild.channels.cache.values()) {
           if (channel!.parentId === category!.id) {
             if (!commonChannels.some((c) => c.name === channel!.name)) {
               await channel!.delete()
@@ -268,11 +261,7 @@ export default class ConfigModule {
   }
 
   async generateCommonForPromotion() {
-    const categories = await this._guild.channels.fetch(undefined, {
-      force: true,
-    })
-
-    const categoryPromotions = categories.filter(
+    const categoryPromotions = this._guild.channels.cache.filter(
       (category) =>
         category &&
         category.type === ChannelType.GuildCategory &&
@@ -281,12 +270,9 @@ export default class ConfigModule {
 
     const commonChannels = this._config["*"] as ConfigFileChannel[]
 
-    const channels = await this._guild.channels.fetch(undefined, {
-      force: true,
-    })
     for (const category of categoryPromotions.values()) {
       for (const channelConfig of commonChannels) {
-        const existingChannel = channels.find(
+        const existingChannel = this._guild.channels.cache.find(
           (channel) =>
             channel &&
             channel.type === this.stringToChannelType(channelConfig.type) &&
@@ -320,22 +306,26 @@ export default class ConfigModule {
     commonChannels: ConfigFileChannel[]
   ) {
     try {
-      const channels = await this._guild.channels.fetch(undefined, {
-        force: true,
-      })
+      const channels = this._guild.channels.cache
 
       const categorizedChannels: Exclude<
-        Channel,
-        | DMChannel
-        | PartialDMChannel
-        | PartialGroupDMChannel
-        | PrivateThreadChannel
-        | PublicThreadChannel
+        GuildBasedChannel,
+        PrivateThreadChannel | PublicThreadChannel<boolean>
       >[] = []
 
       channels.forEach((channel) => {
-        if (channel && channel.parentId === category.id) {
-          categorizedChannels.push(channel)
+        if (
+          channel &&
+          channel.parentId === category.id &&
+          channel.type !== ChannelType.PrivateThread &&
+          channel.type !== ChannelType.PublicThread
+        ) {
+          categorizedChannels.push(
+            channel as Exclude<
+              GuildBasedChannel,
+              PrivateThreadChannel | PublicThreadChannel<boolean>
+            >
+          )
         }
       })
 
@@ -405,11 +395,7 @@ export default class ConfigModule {
    */
   private async initCategory(name: string): Promise<CategoryChannel | null> {
     try {
-      const channels = await this._guild.channels.fetch(undefined, {
-        force: true,
-      })
-
-      const existingChannel = channels.find(
+      const existingChannel = this._guild.channels.cache.find(
         (channel) => channel && channel.name === `➖➖PROMOTION ${name}➖➖`
       ) as CategoryChannel
 
@@ -448,12 +434,8 @@ export default class ConfigModule {
     role: Role
   ) {
     try {
-      const channels = await this._guild.channels.fetch(undefined, {
-        force: true,
-      })
-
       for (const channelConfig of channelsConfig) {
-        const existingChannel = channels.find(
+        const existingChannel = this._guild.channels.cache.find(
           (channel) =>
             channel &&
             channel.type === this.stringToChannelType(channelConfig.type) &&
@@ -500,16 +482,12 @@ export default class ConfigModule {
     promotionName: string
   ) {
     try {
-      const channels = await this._guild.channels.fetch(undefined, {
-        force: true,
-      })
-
       for (const module of modules) {
         const role = await this.findOrCreateRole(
           `${promotionName.split("_").join("")} ${module.name.toUpperCase()}`
         )
 
-        const existingChannel = channels.find(
+        const existingChannel = this._guild.channels.cache.find(
           (channel) =>
             channel &&
             channel.type === ChannelType.GuildForum &&
@@ -550,7 +528,7 @@ export default class ConfigModule {
    */
   private async findOrCreateRole(roleName: string): Promise<Role> {
     try {
-      const roles = await this._guild.roles.fetch(undefined, { force: true })
+      const roles = this._guild.roles.cache
       let role = roles.find((role) => role.name === roleName)
 
       if (!role) {
@@ -580,14 +558,11 @@ export default class ConfigModule {
     key: string
   ) {
     try {
-      const channels = await this._guild.channels.fetch(undefined, {
-        force: true,
-      })
-
       const commonChannels = this._config["*"] as ConfigFileChannel[]
 
-      for (const channel of channels.values()) {
+      for (const channel of this._guild.channels.cache.values()) {
         if (
+          channel &&
           channel!.parentId === category.id &&
           channel!.type === ChannelType.GuildForum
         ) {
@@ -619,15 +594,12 @@ export default class ConfigModule {
    */
   async deleteChannelNotInConfig(category: CategoryChannel, key: string) {
     try {
-      const channels = await this._guild.channels.fetch(undefined, {
-        force: true,
-      })
-
       const configChannels = (this._config[key] as ConfigFilePromotion).channels
       const commonChannels = this._config["*"] as ConfigFileChannel[]
 
-      for (const channel of channels.values()) {
+      for (const channel of this._guild.channels.cache.values()) {
         if (
+          channel &&
           channel!.parentId === category.id &&
           channel!.type !== ChannelType.GuildForum
         ) {
@@ -683,10 +655,7 @@ export default class ConfigModule {
     configFile: ConfigFile
   ) {
     try {
-      const channels = await guild.channels.fetch(undefined, {
-        force: true,
-      })
-      let configCategory = channels.find(
+      let configCategory = guild.channels.cache.find(
         (channel) =>
           channel &&
           channel.type === ChannelType.GuildCategory &&
@@ -699,7 +668,7 @@ export default class ConfigModule {
         })
       }
 
-      let configChannel = channels.find(
+      let configChannel = guild.channels.cache.find(
         (channel) =>
           channel &&
           channel.type === ChannelType.GuildText &&
@@ -736,11 +705,7 @@ export default class ConfigModule {
   }
 
   async sortCategoryChannels() {
-    const channels = await this._guild.channels.fetch(undefined, {
-      force: true,
-    })
-
-    const categories = channels.filter(
+    const categories = this._guild.channels.cache.filter(
       (channel) =>
         channel &&
         channel.type === ChannelType.GuildCategory &&

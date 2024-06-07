@@ -20,29 +20,36 @@ const config: SlashCommandConfig = {
 const command: SlashCommand = {
   // permissions: 0,
   execute: async (interaction) => {
-    const config = interaction.options.get("config_file")
+    try {
+      const config = interaction.options.get("config_file")
 
-    const file = await axios.get(config!.attachment!.url)
+      const file = await axios.get(config!.attachment!.url)
 
-    const configModule = new ConfigModule(
-      interaction.guild!,
-      file.data,
-      interaction
-    )
+      const configModule = new ConfigModule(
+        interaction.guild!,
+        file.data,
+        interaction
+      )
 
-    await interaction.reply({
-      content: "Config file loaded successfully",
-      ephemeral: true,
-    })
+      await interaction.reply({
+        content: "Config file loaded successfully",
+        ephemeral: true,
+      })
 
-    Logger.info("Processing config file...")
-    await configModule.processConfig()
-    Logger.info("Config file processed successfully")
-    await ConfigModule.saveConfigToDatabase(file.data)
-    Logger.info("Config file saved to database")
-    await ConfigModule.updateConfigChannel(interaction.guild!, file.data)
-    Logger.info("Config file updated in channel")
-    await interaction.editReply({ content: "Config updated successfully." })
+      Logger.info("Processing config file...")
+      await configModule.processConfig()
+      Logger.info("Config file processed successfully")
+      await ConfigModule.saveConfigToDatabase(file.data)
+      Logger.info("Config file saved to database")
+      await ConfigModule.updateConfigChannel(interaction.guild!, file.data)
+      Logger.info("Config file updated in channel")
+      await interaction.editReply({ content: "Config updated successfully." })
+    } catch (err) {
+      Logger.error("Error while processing config file: ", err)
+      await interaction.editReply({
+        content: "Error while processing config file.",
+      })
+    }
   },
 }
 
