@@ -56,6 +56,7 @@ export async function syncRolesAndRename(
       return;
     }
 
+    let userRoles: string[] = [];
     const roles = await guild.roles.fetch();
     if (user.roles.includes("student") && user.promo) {
       if (PGE_cycles.includes(user.promo.cursus.code) && roles) {
@@ -66,20 +67,20 @@ export async function syncRolesAndRename(
           Logger.error("error", `Role not found: ${roleName}`);
           return;
         }
-        await member.roles.add([guildRole.id, schoolRole.id]);
+        userRoles.push(guildRole.id, schoolRole.id);
       }
     }
 
-    let cityRoles: string[] = [];
     user.cities.forEach((city: City) => {
       const tpmRole = roles.find(r => r.name === city.name);
       if (!tpmRole) {
         Logger.error("error", `Role not found: ${city.name}`);
         return;
       }
-      cityRoles.push(tpmRole.id);
+      userRoles.push(tpmRole.id);
     })
-    await member.roles.add(cityRoles);
+
+    await member.roles.set(userRoles);
 
     if (isAdmin(user.roles)) return;
 
