@@ -1,8 +1,8 @@
 import { DataTypes, Model, Sequelize } from "sequelize"
 
-export default class Config extends Model {
+export default class ConfigModel extends Model {
   public static definition(sequelize: Sequelize) {
-    Config.init(
+    ConfigModel.init(
       {
         data: {
           type: DataTypes.JSONB,

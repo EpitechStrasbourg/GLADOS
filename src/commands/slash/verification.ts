@@ -1,4 +1,4 @@
-import { Student } from "@/database/models"
+import { StudentModel } from "@/database/models"
 import {
   capitalizeFirstCharacter,
   removeDigitsFromEnd,
@@ -36,7 +36,7 @@ const command: SlashCommand = {
     )
 
     try {
-      const student = await Student.findOne({
+      const student = await StudentModel.findOne({
         where: { verificationCode: code },
       })
       Logger.debug(

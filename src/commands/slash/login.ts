@@ -1,4 +1,4 @@
-import { Student } from "@/database/models"
+import { StudentModel } from "@/database/models"
 import isValidEpitechMail from "@/utils/isValidEpitechMail"
 import sendEmailToUser from "@/utils/mailer"
 import generateVerificationCode from "@/utils/verificationCode"
@@ -46,13 +46,13 @@ const command: SlashCommand = {
       )
       await sendEmailToUser(email, verificationCode)
 
-      if (await Student.findOne({ where: { login: email } })) {
-        Student.update(
+      if (await StudentModel.findOne({ where: { login: email } })) {
+        StudentModel.update(
           { verificationCode: verificationCode },
           { where: { login: email } }
         )
       } else {
-        await Student.create({
+        await StudentModel.create({
           discordId: interaction.user.id,
           login: email,
           verificationCode: verificationCode,
