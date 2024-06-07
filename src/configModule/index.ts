@@ -101,15 +101,21 @@ export default class ConfigModule {
     }
   }
 
-  /**
-   * Returns the promotion year based on the provided year number.
-   * @param year - The year number (1, 2, or 3).
-   * @returns The corresponding year as a number.
-   */
-  private getPromoFromYear(year: number): number {
-    let currentYear = 2026
+  private getCurrentYear(): number {
+    const currentDate = new Date()
+    const currentYear = currentDate.getFullYear()
+    const currentMonth = currentDate.getMonth() + 1
+    return currentMonth >= 1 && currentMonth <= 8
+      ? currentYear - 1
+      : currentYear
+  }
 
-    return currentYear + 5 - year
+  private getTekYearFromPromotion(
+    promotionYear: number,
+    cursusNbYear: number = 5
+  ): number {
+    const baseYear = this.getCurrentYear()
+    return cursusNbYear + 1 - (promotionYear - baseYear)
   }
 
   /**
@@ -148,7 +154,7 @@ export default class ConfigModule {
       if (!key.includes("_") || key.split("_").length !== 2)
         throw new Error(`Invalid key: ${key}`)
 
-      const year = this.getPromoFromYear(parseInt(key.split("_")[1]))
+      const year = this.getTekYearFromPromotion(parseInt(key.split("_")[1]))
       const promotionName = `${key.split("_")[0]} ${year}`
 
       const category = await this.initCategory(promotionName)
@@ -169,7 +175,7 @@ export default class ConfigModule {
       const configPromotion = this._config[key] as ConfigFilePromotion
 
       // Extract the promotion name and year
-      const year = this.getPromoFromYear(parseInt(key.split("_")[1]))
+      const year = this.getTekYearFromPromotion(parseInt(key.split("_")[1]))
       const promotionName = `${key.split("_")[0]} ${year}`
 
       // Initialize or find the category for the promotion
