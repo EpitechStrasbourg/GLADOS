@@ -101,6 +101,10 @@ export default class ConfigModule {
     }
   }
 
+  /**
+   * Get the current scholar year
+   * @returns The current scholar year
+   */
   private getCurrentYear(): number {
     const currentDate = new Date()
     const currentYear = currentDate.getFullYear()
@@ -109,6 +113,13 @@ export default class ConfigModule {
       ? currentYear - 1
       : currentYear
   }
+
+  /**
+   * Get the TEK year from the promotion year
+   * @param promotionYear - The promotion year (1, 2, 3, 4, 5)
+   * @param cursusNbYear - The number of year in the cursus (default 5)
+   * @returns The TEK year
+   */
 
   private getTekYearFromPromotion(
     promotionYear: number,
@@ -121,6 +132,7 @@ export default class ConfigModule {
   /**
    * Formats the configuration to ensure consistent naming.
    * Applies formatting to module and channel names.
+   * @returns void
    */
   private formatConfig() {
     Object.keys(this._config).forEach((key) => {
@@ -211,6 +223,13 @@ export default class ConfigModule {
     await this.sortCategoryChannels()
   }
 
+  /**
+   * Deletes common channels in the specified category that are not in the config.
+   * Common channels are channels that are not specific to a promotion.
+   * @param category - The category channel to check.
+   * @param key - The config key containing the expected channels.
+   * @returns Promise<void>
+   */
   async deleteCommonChannelsNotInConfig(
     category: CategoryChannel,
     key: string
@@ -239,6 +258,10 @@ export default class ConfigModule {
     }
   }
 
+  /**
+   * Processes the not found categories and deletes the channels that are not in the config.
+   * @returns Promise<void>
+   */
   async processNotFoundCategory() {
     const categoryPromotions = this._guild.channels.cache.filter(
       (category) =>
@@ -266,6 +289,11 @@ export default class ConfigModule {
     }
   }
 
+  /**
+   * Generates common channels for promotions based on the configuration.
+   * Common channels are channels that are not specific to a promotion.
+   * @returns Promise<void>
+   */
   async generateCommonForPromotion() {
     const categoryPromotions = this._guild.channels.cache.filter(
       (category) =>
@@ -628,6 +656,10 @@ export default class ConfigModule {
     }
   }
 
+  /**
+   * Retrieves the configuration file from the database.
+   * @returns The configuration file or null if not found.
+   */
   public static async getConfigFromDatabase(): Promise<ConfigFile | null> {
     try {
       const config = await ConfigModel.findOne()
@@ -639,6 +671,11 @@ export default class ConfigModule {
     }
   }
 
+  /**
+   * Saves the configuration file to the database.
+   * @param configFile - The configuration file to save.
+   * @returns True if successful, false otherwise.
+   */
   public static async saveConfigToDatabase(
     configFile: ConfigFile
   ): Promise<boolean> {
@@ -656,6 +693,11 @@ export default class ConfigModule {
     }
   }
 
+  /**
+   * Updates the configuration channel with the specified configuration file.
+   * @param guild - The guild where the configuration channel is located.
+   * @param configFile - The configuration file to update the channel with.
+   */
   public static async updateConfigChannel(
     guild: Guild,
     configFile: ConfigFile
@@ -710,6 +752,11 @@ export default class ConfigModule {
     }
   }
 
+  /**
+   * Updates the configuration file with the content of the specified configuration channel.
+   * @param guild - The guild where the configuration channel is located.
+   * @returns The updated configuration file or null if not found.
+   */
   async sortCategoryChannels() {
     const categories = this._guild.channels.cache.filter(
       (channel) =>
