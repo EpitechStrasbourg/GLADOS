@@ -1,9 +1,11 @@
+import { ConfigModel } from "@/database/models"
 import {
   CategoryChannel,
   Channel,
   ChannelType,
   DMChannel,
   Guild,
+  GuildTextBasedChannel,
   PartialDMChannel,
   PartialGroupDMChannel,
   PrivateThreadChannel,
@@ -643,6 +645,90 @@ export default class ConfigModule {
       }
     } catch (err) {
       throw new Error(`Failed to delete channels for ${category.name}`)
+    }
+  }
+
+  public static async getConfigFromDatabase(): Promise<ConfigFile | null> {
+    try {
+      const config = await ConfigModel.findOne()
+      if (!config) return null
+      return config.data as ConfigFile
+    } catch (err) {
+      console.log(err)
+      return null
+    }
+  }
+
+  public static async saveConfigToDatabase(
+    configFile: ConfigFile
+  ): Promise<boolean> {
+    try {
+      const config = await ConfigModel.findOne()
+      if (!config) {
+        await ConfigModel.create({ data: configFile })
+      } else {
+        await config.update({ data: configFile })
+      }
+      return true
+    } catch (err) {
+      console.log(err)
+      return false
+    }
+  }
+
+  public static async updateConfigChannel(
+    guild: Guild,
+    configFile: ConfigFile
+  ) {
+    try {
+      const channels = await guild.channels.fetch(undefined, {
+        force: true,
+      })
+      let configCategory = channels.find(
+        (channel) =>
+          channel &&
+          channel.type === ChannelType.GuildCategory &&
+          channel.name === "GLADOS_DEV"
+      ) as CategoryChannel
+      if (!configCategory) {
+        configCategory = await guild.channels.create({
+          name: "GLADOS_DEV",
+          type: ChannelType.GuildCategory,
+        })
+      }
+
+      let configChannel = channels.find(
+        (channel) =>
+          channel &&
+          channel.type === ChannelType.GuildText &&
+          channel.name === "GLADOS_CONFIG" &&
+          channel.parentId === configCategory.id
+      )
+
+      if (!configChannel) {
+        configChannel = await guild.channels.create({
+          name: "GLADOS_CONFIG",
+          type: ChannelType.GuildText,
+          parent: configCategory,
+        })
+      }
+
+      const messages = await (
+        configChannel as GuildTextBasedChannel
+      ).messages.fetch()
+
+      if (messages.size > 0) {
+        const message = messages.first()
+        await message?.edit({
+          content: "```json\n" + JSON.stringify(configFile, null, 2) + "\n```",
+        })
+      } else {
+        await (configChannel as GuildTextBasedChannel).send({
+          content: "```json\n" + JSON.stringify(configFile, null, 2) + "\n```",
+        })
+      }
+    } catch (err) {
+      Logger.debug(err)
     }
   }
 }
