@@ -38,7 +38,10 @@ const command: SlashCommand = {
     Logger.info("Processing config file...")
     await configModule.processConfig()
     Logger.info("Config file processed successfully")
-
+    await ConfigModule.saveConfigToDatabase(file.data)
+    Logger.info("Config file saved to database")
+    await ConfigModule.updateConfigChannel(interaction.guild!, file.data)
+    Logger.info("Config file updated in channel")
     await interaction.editReply({ content: "Config updated successfully." })
   },
 }
