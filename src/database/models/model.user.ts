@@ -1,8 +1,8 @@
 import { DataTypes, Model, Sequelize } from "sequelize"
 
-export default class StudentModel extends Model {
+export default class UserModel extends Model {
   public static definition(sequelize: Sequelize) {
-    StudentModel.init(
+    UserModel.init(
       {
         discordId: {
           type: DataTypes.STRING,
