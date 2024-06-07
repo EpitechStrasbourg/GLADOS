@@ -5,7 +5,7 @@ import { SlashCommand, SlashCommandConfig } from "@/types/command"
 import Logger from "@/lib/logger"
 
 const config: SlashCommandConfig = {
-  description: "Utilise cette commande pour vérifier votre compte Epitech.",
+  description: "Utilisez cette commande pour vérifier votre compte Epitech.",
   usage: "/verification",
   options: [
     {

@@ -23,7 +23,7 @@ export default class UserModel extends Model {
         },
       },
       {
-        tableName: "student",
+        tableName: "user",
         sequelize,
       }
     )
