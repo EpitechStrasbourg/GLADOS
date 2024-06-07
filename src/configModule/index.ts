@@ -198,6 +198,8 @@ export default class ConfigModule {
     await new Promise((resolve) => setTimeout(resolve, 2000))
     Logger.info("Processing not found categories...")
     await this.processNotFoundCategory()
+    Logger.info("Sorting categories...")
+    await this.sortCategoryChannels()
   }
 
   async deleteCommonChannelsNotInConfig(
@@ -701,13 +703,13 @@ export default class ConfigModule {
         (channel) =>
           channel &&
           channel.type === ChannelType.GuildText &&
-          channel.name === "GLADOS_CONFIG" &&
+          channel.name === "glados_config" &&
           channel.parentId === configCategory.id
       )
 
       if (!configChannel) {
         configChannel = await guild.channels.create({
-          name: "GLADOS_CONFIG",
+          name: "glados_config",
           type: ChannelType.GuildText,
           parent: configCategory,
         })
@@ -727,8 +729,36 @@ export default class ConfigModule {
           content: "```json\n" + JSON.stringify(configFile, null, 2) + "\n```",
         })
       }
+      await configCategory.setPosition(9999)
     } catch (err) {
       Logger.debug(err)
+    }
+  }
+
+  async sortCategoryChannels() {
+    const channels = await this._guild.channels.fetch(undefined, {
+      force: true,
+    })
+
+    const categories = channels.filter(
+      (channel) =>
+        channel &&
+        channel.type === ChannelType.GuildCategory &&
+        channel.name.includes("➖➖PROMOTION")
+    )
+
+    const sortChannel = [] as CategoryChannel[]
+
+    categories.forEach((category) => {
+      sortChannel.push(category as CategoryChannel)
+    })
+
+    sortChannel.sort((a, b) => {
+      return b.name.localeCompare(a.name)
+    })
+    for (let i = 0; i < sortChannel.length; i++) {
+      if (sortChannel[i].rawPosition === i) continue
+      await sortChannel[i].setPosition(i)
     }
   }
 }
