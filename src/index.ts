@@ -14,6 +14,7 @@ const client = DiscordClient.getInstance({
     GatewayIntentBits.Guilds,
     IntentsBitField.Flags.Guilds,
     IntentsBitField.Flags.GuildVoiceStates,
+    IntentsBitField.Flags.GuildMembers,
   ],
 })
 
@@ -24,7 +25,6 @@ const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN)
     await connectToDatabase(sequelize)
     const jobController = new JobController()
     jobController.create(() => {
-      console.log("dire caca")
     }, "*/5 * * * * *")
     Logger.debug("Started refreshing application (/) commands.")
 
