@@ -14,7 +14,7 @@ export default async function getConfigFromDatabase() {
       Logger.debug('No config found in database');
       return null;
     }
-    return config.data as ConfigFile;
+    return config.getDataValue('data') as ConfigFile;
   } catch (err) {
     Logger.debug(`Error in getConfigFromDatabase: ${err}`);
     return null;

@@ -3,7 +3,7 @@ import handleEvents from "@/handlers/eventHandler"
 import JobController from "@/jobs"
 import loadSlashCommands from "@/loaders/slashCommands"
 import { GatewayIntentBits, IntentsBitField, REST, Routes } from "discord.js"
-
+import syncConfig from "@/jobs/syncConfig"
 import DiscordClient from "@/lib/client"
 import Logger from "@/lib/logger"
 
@@ -28,8 +28,8 @@ const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN)
     await connectToDatabase(sequelize)
     const jobController = new JobController()
     jobController.create(() => {
-      console.log("dire caca")
-    }, "*/5 * * * * *")
+      syncConfig(client);
+    }, "* * * * *")
     Logger.debug("Started refreshing application (/) commands.")
 
     const { slashCommands, slashConfigs } = await loadSlashCommands()

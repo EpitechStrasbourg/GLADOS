@@ -34,7 +34,7 @@ const command: SlashCommand = {
       })
       await interaction.editReply("Channels and roles whiped successfully.")
     } catch (err) {
-      await interaction.editReply("Error while whiping channels and roles.")
+      console.log(err)
     }
   },
 }

@@ -23,6 +23,7 @@ const envSchema = z.object({
     return false
   }),
   NODE_ENV: z.string(),
+  GUILD_ID: z.string(),
 })
 
 function parseEnv(schema: z.ZodSchema) {
