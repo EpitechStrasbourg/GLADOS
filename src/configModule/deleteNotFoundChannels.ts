@@ -23,17 +23,17 @@ export default async function deleteNotFoundChannels(
   const configChannels = (config[key] as ConfigFilePromotion).channels;
   const { modules } = config[key] as ConfigFilePromotion;
 
-  for (const channel of guild.channels.cache.values()) {
-    if (channel && channel!.parentId === category.id) {
-      const configChannel = configChannels.find((c) => c.name === channel!.name);
-      const module = modules.find((m) => m.name === channel!.name);
+  await Promise.allSettled(guild.channels.cache.map(async (channel) => {
+    if (channel && channel.parentId === category.id) {
+      const configChannel = configChannels.find((c) => c.name === channel.name);
+      const module = modules.find((m) => m.name === channel.name);
       if (
         !configChannel
         && !module
-        && !commonChannels.some((c) => c.name === channel!.name)
+        && !commonChannels.some((c) => c.name === channel.name)
       ) {
-        await channel!.delete();
+        await channel.delete();
       }
     }
-  }
+  }));
 }

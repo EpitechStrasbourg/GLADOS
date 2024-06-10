@@ -17,7 +17,7 @@ export default async function initChannels(
   role: Role,
 ) {
   try {
-    for (const channelConfig of channelsConfig) {
+    await Promise.allSettled(channelsConfig.map(async (channelConfig) => {
       const existingChannel = guild.channels.cache.find(
         (channel) => channel
           && channel.type === stringToChannelType(channelConfig.type)
@@ -42,7 +42,7 @@ export default async function initChannels(
           ],
         });
       }
-    }
+    }));
   } catch (err) {
     throw new Error(`Failed to initialize channels for ${category.name}`);
   }

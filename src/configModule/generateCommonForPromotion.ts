@@ -21,8 +21,8 @@ export default async function generateCommonForPromotion(
 
   const commonChannels = config['*'] as ConfigFileChannel[];
 
-  for (const category of categoryPromotions.values()) {
-    for (const channelConfig of commonChannels) {
+  await Promise.allSettled(categoryPromotions.map(async (category) => {
+    await Promise.allSettled(commonChannels.map(async (channelConfig) => {
       const existingChannel = guild.channels.cache.find(
         (channel) => channel
           && channel.type === stringToChannelType(channelConfig.type)
@@ -37,6 +37,6 @@ export default async function generateCommonForPromotion(
           parent: category as CategoryChannel,
         });
       }
-    }
-  }
+    }));
+  }));
 }

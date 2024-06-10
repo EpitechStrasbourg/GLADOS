@@ -64,8 +64,8 @@ export default class ConfigModule {
 
     /* INITIALIZE CATEGORIES CHANNELS PROMOTIONS */
 
-    for (const key of Object.keys(this._config)) {
-      if (key === '*') continue;
+    await Promise.allSettled(Object.keys(this._config).map(async (key) => {
+      if (key === '*') return;
       if (!key.includes('_') || key.split('_').length !== 2) throw new Error(`Invalid key: ${key}`);
 
       const promotion = `${key.split('_')[0]} ${getTekYearFromPromotion(parseInt(key.split('_')[1], 10))}`;
@@ -75,7 +75,7 @@ export default class ConfigModule {
       if (!category) throw new Error(`Failed to initialize category for ${promotion}`);
       this._processedCategory.push(category!);
       this.logBot(`Initialized category for ${promotion}`);
-    }
+    }));
 
     /* PROCESS COMMON CHANNELS FOR PROMOTION ["*"] */
 
@@ -84,8 +84,8 @@ export default class ConfigModule {
 
     /* PROCESS EACH PROMOTIONS CHANNELS AND MODULES */
 
-    for (const key of Object.keys(this._config)) {
-      if (key === '*') continue;
+    await Promise.allSettled(Object.keys(this._config).map(async (key) => {
+      if (key === '*') return;
 
       const configPromotion = this._config[key] as ConfigFilePromotion;
       const promotion = `${key.split('_')[0]} ${getTekYearFromPromotion(parseInt(key.split('_')[1], 10))}`;
@@ -106,7 +106,7 @@ export default class ConfigModule {
         this._config['*'],
       );
       await this.logBot(`Initialized channels and modules for ${promotion}`);
-    }
+    }));
     /* CLEAN OLD PROMOTIONS CHANNELS AND MODULES */
 
     await this.cleanOldPromotions();

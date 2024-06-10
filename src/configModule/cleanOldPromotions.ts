@@ -21,18 +21,19 @@ export default async function cleanOldPromotions(
       && category.name.includes(PROMOTION_PREFIX),
   );
 
-  for (const category of categoryPromotions.values()) {
+  await Promise.allSettled(categoryPromotions.map(async (category) => {
     if (!foundCategories.some((c) => c.id === category!.id)) {
       const commonChannels = config['*'] as ConfigFileChannel[];
 
-      for (const channel of guild.channels.cache.values()) {
+      await Promise.allSettled(guild.channels.cache.map(async (channel) => {
         if (channel!.parentId === category!.id) {
           if (!commonChannels.some((c) => c.name === channel!.name)) {
             await channel!.delete();
           }
         }
-      }
-      sortChannelsInCategory(guild, category as CategoryChannel, [], []);
+      }));
+
+      await sortChannelsInCategory(guild, category as CategoryChannel, [], []);
     }
-  }
+  }));
 }

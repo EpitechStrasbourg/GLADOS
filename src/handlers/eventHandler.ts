@@ -26,13 +26,13 @@ export default function handleEvents() {
           && !file.startsWith('_'),
       );
 
-    for (const file of eventFiles) {
+    eventFiles.forEach(async (file) => {
       const eventName = file.split('.')[0] as keyof typeof Events;
 
       // Skip invalid events
       if (!(eventName in Events)) {
         Logger.warn(`Invalid event name '${eventName}', skipping...`);
-        continue;
+        return;
       }
 
       try {
@@ -53,9 +53,8 @@ export default function handleEvents() {
         Logger.error(
           `Failed to load event '${eventName}': \n\t${(err as Error).message}`,
         );
-        continue;
       }
-    }
+    });
 
     return loadedEvents;
   };

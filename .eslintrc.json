@@ -23,9 +23,7 @@
     "no-underscore-dangle": "off",
     "no-param-reassign": "off",
     "no-continue": "off",
-    "no-restricted-syntax": "off",
-    "max-len": "off",
-    "no-await-in-loop": "off"
+    "max-len": "off"
   },
   "settings": {
       "import/resolver": {
