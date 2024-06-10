@@ -1,4 +1,4 @@
-import { Guild } from "discord.js"
+import { Guild } from 'discord.js';
 
 /**
  * Finds a role by name in a guild, or creates it if it doesn't exist.
@@ -8,14 +8,14 @@ import { Guild } from "discord.js"
  */
 export default async function findOrCreateRole(guild: Guild, roleName: string) {
   try {
-    let role = guild.roles.cache.find((role) => role.name === roleName)
+    let role = guild.roles.cache.find((r) => r.name === roleName);
     if (!role) {
       role = await guild.roles.create({
         name: roleName,
-      })
+      });
     }
-    return role
+    return role;
   } catch (err) {
-    throw new Error(`Error in findOrCreateRole: ${err}`)
+    throw new Error(`Error in findOrCreateRole: ${err}`);
   }
 }

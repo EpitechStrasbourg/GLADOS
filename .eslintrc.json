@@ -1,0 +1,35 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "airbnb-base",
+    "plugin:import/typescript",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parserOptions": {
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "camelcase": "off",
+    "no-console": "off",
+    "import/extensions": "off",
+    "no-underscore-dangle": "off",
+    "no-param-reassign": "off",
+    "no-continue": "off",
+    "no-restricted-syntax": "off",
+    "max-len": "off",
+    "no-await-in-loop": "off"
+  },
+  "settings": {
+      "import/resolver": {
+        "typescript": {}
+      }
+    }
+}

@@ -1,8 +1,6 @@
 import dotenv from "dotenv"
 import { z } from "zod"
 
-import { Logger } from "./lib/logger"
-
 dotenv.config()
 
 const envSchema = z.object({
@@ -32,7 +30,7 @@ function parseEnv(schema: z.ZodSchema) {
     return schema.parse(process.env)
   } catch (err) {
     if (!(err instanceof z.ZodError)) {
-      Logger.error(err)
+      console.error(err)
       process.exit(1)
     }
 

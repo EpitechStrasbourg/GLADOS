@@ -2,8 +2,8 @@ import {
   ConfigFile,
   ConfigFileChannel,
   ConfigFilePromotion,
-} from "@/configModule/types"
-import { CategoryChannel, Guild } from "discord.js"
+} from '@/configModule/types';
+import { CategoryChannel, Guild } from 'discord.js';
 
 /**
  * Delete channels that are not in the promotion config nor in the common channels
@@ -17,22 +17,22 @@ export default async function deleteNotFoundChannels(
   guild: Guild,
   config: ConfigFile,
   key: string,
-  category: CategoryChannel
+  category: CategoryChannel,
 ) {
-  const commonChannels = config["*"] as ConfigFileChannel[]
-  const configChannels = (config[key] as ConfigFilePromotion).channels
-  const modules = (config[key] as ConfigFilePromotion).modules
+  const commonChannels = config['*'] as ConfigFileChannel[];
+  const configChannels = (config[key] as ConfigFilePromotion).channels;
+  const { modules } = config[key] as ConfigFilePromotion;
 
   for (const channel of guild.channels.cache.values()) {
     if (channel && channel!.parentId === category.id) {
-      const configChannel = configChannels.find((c) => c.name === channel!.name)
-      const module = modules.find((m) => m.name === channel!.name)
+      const configChannel = configChannels.find((c) => c.name === channel!.name);
+      const module = modules.find((m) => m.name === channel!.name);
       if (
-        !configChannel &&
-        !module &&
-        !commonChannels.some((c) => c.name === channel!.name)
+        !configChannel
+        && !module
+        && !commonChannels.some((c) => c.name === channel!.name)
       ) {
-        await channel!.delete()
+        await channel!.delete();
       }
     }
   }

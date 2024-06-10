@@ -1,6 +1,6 @@
 export interface ConfigFileChannel {
   name: string
-  type: "GuildAnnouncement" | "GuildText" | "GuildForum"
+  type: 'GuildAnnouncement' | 'GuildText' | 'GuildForum'
 }
 
 export interface ConfigFileModule {
@@ -15,5 +15,5 @@ export interface ConfigFilePromotion {
 
 export interface ConfigFile {
   [key: string]: ConfigFilePromotion | ConfigFileChannel[]
-  "*": ConfigFileChannel[]
+  '*': ConfigFileChannel[]
 }

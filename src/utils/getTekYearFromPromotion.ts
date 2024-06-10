@@ -1,4 +1,4 @@
-import getCurrentYear from "@/utils/getCurrentYear"
+import getCurrentYear from '@/utils/getCurrentYear';
 
 /**
  * Get the TEK year from the promotion year
@@ -8,8 +8,7 @@ import getCurrentYear from "@/utils/getCurrentYear"
  */
 export default function getTekYearFromPromotion(
   promotionYear: number,
-  cursusNbYear: number = 5
+  cursusNbYear: number = 5,
 ): number {
-  const baseYear = getCurrentYear()
-  return cursusNbYear + 1 - (promotionYear - baseYear)
+  return cursusNbYear + 1 - (promotionYear - getCurrentYear());
 }

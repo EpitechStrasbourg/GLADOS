@@ -1,4 +1,4 @@
-import { ConfigFileChannel } from "@/configModule/types"
+import { ConfigFileChannel } from '@/configModule/types';
 import {
   CategoryChannel,
   ChannelType,
@@ -6,7 +6,7 @@ import {
   GuildBasedChannel,
   PrivateThreadChannel,
   PublicThreadChannel,
-} from "discord.js"
+} from 'discord.js';
 
 /**
  * Sorts channels in a category based on the order in the config file.
@@ -20,75 +20,67 @@ export default async function sortChannelsInCategory(
   guild: Guild,
   category: CategoryChannel,
   channelsConfig: ConfigFileChannel[],
-  commonChannels: ConfigFileChannel[]
+  commonChannels: ConfigFileChannel[],
 ) {
   try {
-    const channels = guild.channels.cache
+    const channels = guild.channels.cache;
 
     const categorizedChannels: Exclude<
       GuildBasedChannel,
       PrivateThreadChannel | PublicThreadChannel<boolean>
-    >[] = []
+    >[] = [];
 
     channels.forEach((channel) => {
       if (
-        channel &&
-        channel.parentId === category.id &&
-        channel.type !== ChannelType.PrivateThread &&
-        channel.type !== ChannelType.PublicThread
+        channel
+        && channel.parentId === category.id
+        && channel.type !== ChannelType.PrivateThread
+        && channel.type !== ChannelType.PublicThread
       ) {
         categorizedChannels.push(
           channel as Exclude<
             GuildBasedChannel,
             PrivateThreadChannel | PublicThreadChannel<boolean>
-          >
-        )
+          >,
+        );
       }
-    })
+    });
 
-    const commonConfigChannels = categorizedChannels.filter((channel) =>
-      commonChannels.some((config) => config.name === channel.name)
-    )
+    const commonConfigChannels = categorizedChannels.filter((channel) => commonChannels.some((config) => config.name === channel.name));
 
     const otherConfigChannels = categorizedChannels.filter(
-      (channel) =>
-        !commonChannels.some((config) => config.name === channel.name) &&
-        channelsConfig.some((config) => config.name === channel.name)
-    )
+      (channel) => !commonChannels.some((config) => config.name === channel.name)
+        && channelsConfig.some((config) => config.name === channel.name),
+    );
 
     const remainingChannels = categorizedChannels.filter(
-      (channel) =>
-        !commonChannels.some((config) => config.name === channel.name) &&
-        !channelsConfig.some((config) => config.name === channel.name)
-    )
+      (channel) => !commonChannels.some((config) => config.name === channel.name)
+        && !channelsConfig.some((config) => config.name === channel.name),
+    );
 
     const orderedCommonChannels = commonConfigChannels.sort(
-      (a, b) =>
-        commonChannels.findIndex((config) => config.name === a.name) -
-        commonChannels.findIndex((config) => config.name === b.name)
-    )
+      (a, b) => commonChannels.findIndex((config) => config.name === a.name)
+        - commonChannels.findIndex((config) => config.name === b.name),
+    );
 
     const orderedOtherConfigChannels = otherConfigChannels.sort(
-      (a, b) =>
-        channelsConfig.findIndex((config) => config.name === a.name) -
-        channelsConfig.findIndex((config) => config.name === b.name)
-    )
+      (a, b) => channelsConfig.findIndex((config) => config.name === a.name)
+        - channelsConfig.findIndex((config) => config.name === b.name),
+    );
 
-    const sortedRemainingChannels = remainingChannels.sort((a, b) =>
-      a.name!.localeCompare(b.name!)
-    )
+    const sortedRemainingChannels = remainingChannels.sort((a, b) => a.name!.localeCompare(b.name!));
 
     const orderedChannels = [
       ...orderedCommonChannels,
       ...orderedOtherConfigChannels,
       ...sortedRemainingChannels,
-    ]
+    ];
 
-    for (let i = 0; i < orderedChannels.length; i++) {
-      if (orderedChannels[i].rawPosition === i) continue
-      await orderedChannels[i].setPosition(i)
+    for (let i = 0; i < orderedChannels.length; i += 1) {
+      if (orderedChannels[i].rawPosition === i) continue;
+      await orderedChannels[i].setPosition(i);
     }
   } catch (err) {
-    throw new Error(`Failed to sort channels for ${category.name}: ${err}`)
+    throw new Error(`Failed to sort channels for ${category.name}: ${err}`);
   }
 }

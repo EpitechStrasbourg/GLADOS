@@ -1,16 +1,19 @@
-import { Client, type ClientOptions } from "discord.js"
+import { Client, type ClientOptions } from 'discord.js';
 
-import type { SlashCommandConfig } from "@/types/command"
+import type { SlashCommandConfig } from '@/types/command';
 
 /**
  * Singleton Discord client.
  */
-export class DiscordClient extends Client {
-  private static _instance: DiscordClient
-  public slashConfigs: SlashCommandConfig[] = []
+export default class DiscordClient extends Client {
+  // eslint-disable-next-line no-use-before-define
+  private static _instance: DiscordClient;
 
+  public slashConfigs: SlashCommandConfig[] = [];
+
+  // eslint-disable-next-line no-useless-constructor
   private constructor(options: ClientOptions) {
-    super(options)
+    super(options);
   }
 
   /**
@@ -19,12 +22,12 @@ export class DiscordClient extends Client {
    * @returns `DiscordClient` Discord client instance.
    */
   public static getInstance(
-    options: ClientOptions = { intents: [] }
+    options: ClientOptions = { intents: [] },
   ): DiscordClient {
     if (!DiscordClient._instance) {
-      DiscordClient._instance = new DiscordClient(options)
+      DiscordClient._instance = new DiscordClient(options);
     }
 
-    return DiscordClient._instance
+    return DiscordClient._instance;
   }
 }

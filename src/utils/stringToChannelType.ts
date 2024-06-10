@@ -1,4 +1,4 @@
-import { ChannelType } from "discord.js"
+import { ChannelType } from 'discord.js';
 
 /**
  * Converts a string to the corresponding ChannelType enum value.
@@ -6,19 +6,19 @@ import { ChannelType } from "discord.js"
  * @returns The corresponding ChannelType value.
  */
 export default function stringToChannelType(
-  type: string
+  type: string,
 ):
   | ChannelType.GuildAnnouncement
   | ChannelType.GuildText
   | ChannelType.GuildForum {
   switch (type) {
-    case "GuildAnnouncement":
-      return ChannelType.GuildAnnouncement
-    case "GuildText":
-      return ChannelType.GuildText
-    case "GuildForum":
-      return ChannelType.GuildForum
+    case 'GuildAnnouncement':
+      return ChannelType.GuildAnnouncement;
+    case 'GuildText':
+      return ChannelType.GuildText;
+    case 'GuildForum':
+      return ChannelType.GuildForum;
     default:
-      throw new Error(`Unknown channel type: ${type}`)
+      throw new Error(`Unknown channel type: ${type}`);
   }
 }

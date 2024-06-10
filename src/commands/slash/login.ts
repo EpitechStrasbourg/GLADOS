@@ -4,7 +4,7 @@ import sendEmailToUser from "@/utils/mailer"
 import generateVerificationCode from "@/utils/verificationCode"
 
 import { SlashCommand, SlashCommandConfig } from "@/types/command"
-import { Logger } from "@/lib/logger"
+import Logger from "@/lib/logger"
 
 const config: SlashCommandConfig = {
   description: "Utilise cette commande pour te connecter à ton compte Epitech.",

@@ -1,7 +1,7 @@
-import { ConfigFile } from "@/configModule/types"
-import ConfigModel from "@/database/models/model.config"
+import { ConfigFile } from '@/configModule/types';
+import ConfigModel from '@/database/models/model.config';
 
-import { Logger } from "@/lib/logger"
+import Logger from '@/lib/logger';
 
 /**
  * Save the configuration file to the database.
@@ -9,19 +9,19 @@ import { Logger } from "@/lib/logger"
  * @returns Promise<boolean>
  */
 export default async function saveConfigFromDatabase(
-  configFile: ConfigFile
+  configFile: ConfigFile,
 ): Promise<boolean> {
   try {
-    const config = await ConfigModel.findOne()
+    const config = await ConfigModel.findOne();
     if (!config) {
-      await ConfigModel.create({ data: configFile })
+      await ConfigModel.create({ data: configFile });
     } else {
-      config.data = configFile
-      await config.save()
+      config.data = configFile;
+      await config.save();
     }
-    return true
+    return true;
   } catch (err) {
-    Logger.debug(`Error in saveConfigToDatabase: ${err}`)
-    return false
+    Logger.debug(`Error in saveConfigToDatabase: ${err}`);
+    return false;
   }
 }
