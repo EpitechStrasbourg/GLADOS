@@ -34,24 +34,25 @@ export default class ConfigModule {
   constructor(
     guild: Guild,
     config: ConfigFile,
-    interaction: SlashCommandInteraction,
+    interaction: SlashCommandInteraction | null = null,
   ) {
     if (!guild) throw new Error('Guild must be provided.');
     if (!config) throw new Error('Config must be provided.');
-    if (!interaction) throw new Error('Interaction must be provided.');
 
     this._guild = guild;
     this._config = config;
-    this._interaction = interaction;
+    this._interaction = interaction as SlashCommandInteraction;
     this._processedCategory = [] as CategoryChannel[];
 
     this._config = formatConfig(this._config);
   }
 
   private async logBot(message: string) {
-    await this._interaction.editReply({
-      content: message,
-    });
+    if (this._interaction !== null) {
+      await this._interaction.editReply({
+        content: message,
+      });
+    }
   }
 
   async processConfig() {
