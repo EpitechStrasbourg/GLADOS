@@ -165,59 +165,62 @@ export default async function loadSlashCommands() {
   const slashCommands: SlashCommandBuilder[] = [];
   const slashConfigs: SlashCommandConfig[] = [];
 
-  const slashDirFiles = await fs.readdir(SLASH_DIR, {
-    recursive: true,
-  });
-  const slashCommandFiles = slashDirFiles
-    .map((file) => file.toString())
-    .filter((file) => file.endsWith(FILE_EXT));
+  try {
+    const slashDirFiles = await fs.readdir(SLASH_DIR, { recursive: true });
+    const slashCommandFiles = slashDirFiles
+      .map((file) => file.toString())
+      .filter((file) => file.endsWith(FILE_EXT));
 
-  for (const scFile of slashCommandFiles) {
-    const fileBasename = path.basename(scFile, FILE_EXT);
-    const fileDirectory = path.dirname(scFile).replaceAll(path.sep, '/');
+    await Promise.allSettled(slashCommandFiles.map(async (scFile) => {
+      const fileBasename = path.basename(scFile, FILE_EXT);
+      const fileDirectory = path.dirname(scFile).replaceAll(path.sep, '/');
 
-    try {
-      // Import the module to check if it exists and has a default export
-      const rawModule = await import(`../commands/slash/${scFile}`);
-      const commandModule = rawModule.default?.default
-        ? rawModule.default
-        : rawModule;
+      try {
+        // Import the module to check if it exists and has a default export
+        const rawModule = await import(`../commands/slash/${scFile}`);
+        const commandModule = rawModule.default?.default
+          ? rawModule.default
+          : rawModule;
 
-      if (!commandModule.default) continue;
-      const {
-        command,
-        config,
-      }: { command: SlashCommand; config: SlashCommandConfig } = commandModule.default;
+        if (!commandModule.default) return;
 
-      if (!config) {
-        Logger.error(`Missing config in slash command "${fileBasename}"`);
-        continue;
+        const {
+          command,
+          config,
+        }: { command: SlashCommand; config: SlashCommandConfig } = commandModule.default;
+
+        if (!config) {
+          Logger.error(`Missing config in slash command "${fileBasename}"`);
+          return;
+        }
+
+        if (config?.name === undefined) {
+          config.name = fileBasename;
+        }
+
+        // Save the file name in the config (used during execution)
+        config.fileName = scFile;
+
+        // Get the first directory name of the file directory that isn't inside parenthesis
+        const directories = fileDirectory.split('/');
+        const categoryIndex = directories.findIndex(
+          (dir) => !dir.startsWith('(') && !dir.endsWith(')'),
+        );
+        const category = categoryIndex !== -1
+          ? directories.slice(categoryIndex).join('/').trim()
+          : undefined;
+        if (category && category !== '.') {
+          config.category = category;
+        }
+
+        slashCommands.push(buildSlashCommand(config, command));
+        slashConfigs.push(config);
+      } catch (err) {
+        Logger.error(`Error loading slash command "${fileBasename}": \n\t${err}`);
       }
-
-      if (config?.name === undefined) {
-        config.name = fileBasename;
-      }
-
-      // Save the file name in the config (used during execution)
-      config.fileName = scFile;
-
-      // Get the first directory name of the file directory that isn't inside parenthesis
-      const directories = fileDirectory.split('/');
-      const categoryIndex = directories.findIndex(
-        (dir) => !dir.startsWith('(') && !dir.endsWith(')'),
-      );
-      const category = categoryIndex !== -1
-        ? directories.slice(categoryIndex).join('/').trim()
-        : undefined;
-      if (category && category !== '.') {
-        config.category = category;
-      }
-
-      slashCommands.push(buildSlashCommand(config, command));
-      slashConfigs.push(config);
-    } catch (err) {
-      Logger.error(`Error loading slash command "${fileBasename}": \n\t${err}`);
-    }
+    }));
+  } catch (err) {
+    Logger.error(`Error reading slash directory: \n\t${err}`);
   }
 
   Logger.debug(`Loaded ${slashCommands.length} slash commands`);

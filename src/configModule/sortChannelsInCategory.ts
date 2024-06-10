@@ -76,10 +76,10 @@ export default async function sortChannelsInCategory(
       ...sortedRemainingChannels,
     ];
 
-    for (let i = 0; i < orderedChannels.length; i += 1) {
-      if (orderedChannels[i].rawPosition === i) continue;
-      await orderedChannels[i].setPosition(i);
-    }
+    await Promise.allSettled(orderedChannels.map(async (channel, index) => {
+      if (channel.rawPosition === index) return;
+      await channel.setPosition(index);
+    }));
   } catch (err) {
     throw new Error(`Failed to sort channels for ${category.name}: ${err}`);
   }

@@ -17,7 +17,7 @@ export default async function initModules(
   guild: Guild,
 ) {
   try {
-    for (const module of modules) {
+    await Promise.allSettled(modules.map(async (module) => {
       const role = await findOrCreateRole(
         guild,
         `${promotionName.split('_').join('')} ${module.name.toUpperCase()}`,
@@ -47,7 +47,7 @@ export default async function initModules(
           ],
         });
       }
-    }
+    }));
   } catch (err) {
     throw new Error(`Failed to initialize modules for ${category.name}`);
   }

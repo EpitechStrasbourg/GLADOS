@@ -19,9 +19,8 @@ export default async function sortPromotionCategory(guild: Guild) {
     sortChannel.push(category as CategoryChannel);
   });
 
-  sortChannel.sort((a, b) => b.name.localeCompare(a.name));
-  for (let i = 0; i < sortChannel.length; i += 1) {
-    if (sortChannel[i].rawPosition === i) continue;
-    await sortChannel[i].setPosition(i);
-  }
+  Promise.allSettled(sortChannel.map(async (channel, i) => {
+    if (channel.rawPosition === i) return;
+    await channel.setPosition(i);
+  }));
 }

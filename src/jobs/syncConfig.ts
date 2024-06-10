@@ -2,8 +2,16 @@ import ConfigModule from '@/configModule';
 import DiscordClient from '@/lib/client';
 import { env } from '@/env';
 import Logger from '@/lib/logger';
+import { acquireLock, isLockAcquired, releaseLock } from '@/utils/configMutex';
 
 export default async function syncConfig(client: DiscordClient): Promise<void> {
+  while (isLockAcquired()) {
+    Logger.info('A config is already being processed. Please wait...');
+
+    // eslint-disable-next-line no-await-in-loop, no-promise-executor-return
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  acquireLock();
   try {
     Logger.info('Syncing config...');
     const config = await ConfigModule.getConfigFromDatabase();
@@ -21,4 +29,5 @@ export default async function syncConfig(client: DiscordClient): Promise<void> {
   } catch (err) {
     Logger.error('Error while syncing config: ', err);
   }
+  releaseLock();
 }
