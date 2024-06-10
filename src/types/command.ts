@@ -13,7 +13,7 @@ import type {
   SlashCommandStringOption,
   SlashCommandUserOption,
   UserContextMenuCommandInteraction,
-} from "discord.js"
+} from 'discord.js';
 
 export type SlashCommandOption =
   | SlashCommandAttachmentOption
@@ -40,30 +40,16 @@ export interface SlashCommandOptionConfig {
   name: string | undefined
   description: string | undefined
   type:
-    | "STRING"
-    | "INTEGER"
-    | "BOOLEAN"
-    | "USER"
-    | "CHANNEL"
-    | "ROLE"
-    | "MENTIONABLE"
-    | "NUMBER"
-    | "ATTACHMENT"
+    | 'STRING'
+    | 'INTEGER'
+    | 'BOOLEAN'
+    | 'USER'
+    | 'CHANNEL'
+    | 'ROLE'
+    | 'MENTIONABLE'
+    | 'NUMBER'
+    | 'ATTACHMENT'
   required?: boolean
-}
-
-export interface SlashCommandStringOptionConfig
-  extends SlashCommandOptionConfig {
-  type: "STRING"
-  choices?: StringOptionChoice[]
-}
-
-export interface SlashCommandNumberOptionConfig
-  extends SlashCommandOptionConfig {
-  type: "INTEGER" | "NUMBER"
-  choices?: NumberOptionChoice[]
-  minValue?: number
-  maxValue?: number
 }
 
 export interface StringOptionChoice {
@@ -71,9 +57,22 @@ export interface StringOptionChoice {
   value: string
 }
 
+export interface SlashCommandStringOptionConfig
+  extends SlashCommandOptionConfig {
+  type: 'STRING'
+  choices?: StringOptionChoice[]
+}
 export interface NumberOptionChoice {
   name: string
   value: number
+}
+
+export interface SlashCommandNumberOptionConfig
+  extends SlashCommandOptionConfig {
+  type: 'INTEGER' | 'NUMBER'
+  choices?: NumberOptionChoice[]
+  minValue?: number
+  maxValue?: number
 }
 
 export interface SlashCommandConfig {

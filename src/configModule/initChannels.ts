@@ -1,6 +1,6 @@
-import { ConfigFileChannel } from "@/configModule/types"
-import stringToChannelType from "@/utils/stringToChannelType"
-import { CategoryChannel, Guild, Role } from "discord.js"
+import { ConfigFileChannel } from '@/configModule/types';
+import stringToChannelType from '@/utils/stringToChannelType';
+import { CategoryChannel, Guild, Role } from 'discord.js';
 
 /**
  * Initialize channels for a category
@@ -14,17 +14,16 @@ export default async function initChannels(
   guild: Guild,
   category: CategoryChannel,
   channelsConfig: ConfigFileChannel[],
-  role: Role
+  role: Role,
 ) {
   try {
     for (const channelConfig of channelsConfig) {
       const existingChannel = guild.channels.cache.find(
-        (channel) =>
-          channel &&
-          channel.type === stringToChannelType(channelConfig.type) &&
-          channel.name === channelConfig.name &&
-          channel.parentId === category.id
-      )
+        (channel) => channel
+          && channel.type === stringToChannelType(channelConfig.type)
+          && channel.name === channelConfig.name
+          && channel.parentId === category.id,
+      );
 
       if (!existingChannel) {
         await guild.channels.create({
@@ -33,18 +32,18 @@ export default async function initChannels(
           parent: category,
           permissionOverwrites: [
             {
-              deny: ["ViewChannel"],
+              deny: ['ViewChannel'],
               id: guild.id,
             },
             {
-              allow: ["ViewChannel"],
+              allow: ['ViewChannel'],
               id: role.id,
             },
           ],
-        })
+        });
       }
     }
   } catch (err) {
-    throw new Error(`Failed to initialize channels for ${category.name}`)
+    throw new Error(`Failed to initialize channels for ${category.name}`);
   }
 }

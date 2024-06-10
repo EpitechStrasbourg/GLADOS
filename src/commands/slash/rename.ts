@@ -4,7 +4,7 @@ import {
 } from "@/events/guild/VoiceStateUpdate"
 
 import { SlashCommand, SlashCommandConfig } from "@/types/command"
-import { Logger } from "@/lib/logger"
+import Logger from "@/lib/logger"
 
 const config: SlashCommandConfig = {
   description: "Rename your temporary channel",
@@ -26,7 +26,7 @@ const command: SlashCommand = {
 
     if (member?.voice.channel) {
       const channel = member.voice.channel
-      let match =
+      const match =
         channel.name.match(temporaryChannelPattern) ||
         channel.name.match(renamedChannelPattern)
 

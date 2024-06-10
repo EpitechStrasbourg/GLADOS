@@ -1,6 +1,6 @@
-import { PROMOTION_ENDING, PROMOTION_PREFIX } from "@/configModule/const"
-import findOrCreateRole from "@/configModule/findOrCreateRole"
-import { CategoryChannel, ChannelType, Guild } from "discord.js"
+import { PROMOTION_ENDING, PROMOTION_PREFIX } from '@/configModule/const';
+import findOrCreateRole from '@/configModule/findOrCreateRole';
+import { CategoryChannel, ChannelType, Guild } from 'discord.js';
 
 /**
  * Find or create category for promotion
@@ -10,35 +10,34 @@ import { CategoryChannel, ChannelType, Guild } from "discord.js"
  */
 export default async function findOrCreateCategory(
   guild: Guild,
-  categoryName: string
+  categoryName: string,
 ) {
   try {
     const existingChannel = guild.channels.cache.find(
-      (channel) =>
-        channel &&
-        channel.name ===
-          `${PROMOTION_PREFIX} ${categoryName}${PROMOTION_ENDING}`
-    ) as CategoryChannel
+      (channel) => channel
+        && channel.name
+          === `${PROMOTION_PREFIX} ${categoryName}${PROMOTION_ENDING}`,
+    ) as CategoryChannel;
 
-    if (existingChannel) return existingChannel
+    if (existingChannel) return existingChannel;
 
-    const role = await findOrCreateRole(guild, categoryName)
+    const role = await findOrCreateRole(guild, categoryName);
 
     return await guild.channels.create({
       name: `${PROMOTION_PREFIX} ${categoryName}${PROMOTION_ENDING}`,
       type: ChannelType.GuildCategory,
       permissionOverwrites: [
         {
-          deny: ["ViewChannel"],
+          deny: ['ViewChannel'],
           id: guild.id,
         },
         {
-          allow: ["ViewChannel"],
+          allow: ['ViewChannel'],
           id: role.id,
         },
       ],
-    })
+    });
   } catch (err) {
-    throw new Error(`Failed to initialize category for ${categoryName}`)
+    throw new Error(`Failed to initialize category for ${categoryName}`);
   }
 }

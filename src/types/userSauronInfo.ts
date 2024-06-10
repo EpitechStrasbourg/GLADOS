@@ -3,7 +3,7 @@ export interface City {
   name: string
 }
 
-export type roles = "dpr" | "pedago" | "units_responsible" | "admin" | "student"
+export type roles = 'dpr' | 'pedago' | 'units_responsible' | 'admin' | 'student'
 
 export interface UserSauronInfo extends ApiData {
   login: string

@@ -2,10 +2,10 @@ import {
   ConfigFile,
   ConfigFileChannel,
   ConfigFilePromotion,
-} from "@/configModule/types"
+} from '@/configModule/types';
 
 function formatChannelName(name: string): string {
-  return name.toLowerCase().trim().replace(/ /g, "-")
+  return name.toLowerCase().trim().replace(/ /g, '-');
 }
 
 /**
@@ -15,19 +15,19 @@ function formatChannelName(name: string): string {
  */
 export default function formatConfig(config: ConfigFile) {
   Object.keys(config).forEach((key) => {
-    if (key === "*") {
-      ;(config[key] as ConfigFileChannel[]).forEach((channel) => {
-        channel.name = formatChannelName(channel.name)
-      })
-      return
+    if (key === '*') {
+      (config[key] as ConfigFileChannel[]).forEach((channel) => {
+        channel.name = formatChannelName(channel.name);
+      });
+      return;
     }
-    const configPromotion = config[key] as ConfigFilePromotion
+    const configPromotion = config[key] as ConfigFilePromotion;
     configPromotion.modules.forEach((module) => {
-      module.name = formatChannelName(module.name)
-    })
+      module.name = formatChannelName(module.name);
+    });
     configPromotion.channels.forEach((channel) => {
-      channel.name = formatChannelName(channel.name)
-    })
-  })
-  return config
+      channel.name = formatChannelName(channel.name);
+    });
+  });
+  return config;
 }

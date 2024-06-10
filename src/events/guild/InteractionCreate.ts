@@ -1,8 +1,8 @@
 import { type CacheType, type Interaction } from "discord.js"
 
 import type { SlashCommand, SlashCommandInteraction } from "@/types/command"
-import { type DiscordClient } from "@/lib/client"
-import { Logger } from "@/lib/logger"
+import DiscordClient from "@/lib/client"
+import Logger from "@/lib/logger"
 
 /**
  * Application command event
@@ -47,7 +47,6 @@ async function executeSlashCommand(
     ).default
     await command.execute(interaction)
   } catch (error) {
-    console.log("hereeeeeeeeee")
     Logger.error(`Error executing slash command "${commandName}": \n\t${error}`)
     await interaction.reply({
       content: "There was an error while executing this command!",

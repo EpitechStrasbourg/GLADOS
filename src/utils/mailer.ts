@@ -1,30 +1,51 @@
-import { Logger } from "@/lib/logger"
+import nodemailer, {
+  SendMailOptions,
+  SentMessageInfo,
+  Transporter,
+} from 'nodemailer';
 
-const nodemailer = require("nodemailer")
+import Logger from '@/lib/logger';
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
+const transporter: Transporter = nodemailer.createTransport({
+  service: 'gmail',
   auth: {
-    user: "epitechDiscordBot@gmail.com",
-    pass: "hxbdgtpckzlcrjhg",
+    user: 'epitechDiscordBot@gmail.com',
+    pass: 'hxbdgtpckzlcrjhg',
   },
-})
+});
 
-export default async (to: string, verificationCode: number) => {
-  const mailOptions = {
-    from: "epitechDiscordBot@gmail.com",
-    to: to,
-    subject: "Verification - Epitech Roles Manager",
-    text: "Here is your code: " + verificationCode,
-  }
-
-  transporter.sendMail(mailOptions, function (error: any, info: any) {
-    if (error) {
-      Logger.error("error", `Error sending email: ${error}`)
-      return 84
-    } else {
-      Logger.debug("info", `Email sent: ${info.response}`)
-      return 0
-    }
-  })
+interface MailOptions extends SendMailOptions {
+  from: string
+  to: string
+  subject: string
+  text: string
 }
+
+const sendVerificationEmail = async (
+  to: string,
+  verificationCode: number,
+): Promise<number> => {
+  const mailOptions: MailOptions = {
+    from: 'epitechDiscordBot@gmail.com',
+    to,
+    subject: 'Verification - Epitech Roles Manager',
+    text: `Here is your code: ${verificationCode}`,
+  };
+
+  return new Promise((resolve) => {
+    transporter.sendMail(
+      mailOptions,
+      (error: Error | null, info: SentMessageInfo) => {
+        if (error) {
+          Logger.error('error', `Error sending email: ${error}`);
+          resolve(84);
+        } else {
+          Logger.debug('info', `Email sent: ${info.response}`);
+          resolve(0);
+        }
+      },
+    );
+  });
+};
+
+export default sendVerificationEmail;

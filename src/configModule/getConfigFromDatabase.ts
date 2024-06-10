@@ -1,7 +1,7 @@
-import { ConfigFile } from "@/configModule/types"
-import { ConfigModel } from "@/database/models"
+import { ConfigFile } from '@/configModule/types';
+import { ConfigModel } from '@/database/models';
 
-import { Logger } from "@/lib/logger"
+import Logger from '@/lib/logger';
 
 /**
  * Get the configuration file from the database.
@@ -9,14 +9,14 @@ import { Logger } from "@/lib/logger"
  */
 export default async function getConfigFromDatabase() {
   try {
-    const config = await ConfigModel.findOne()
+    const config = await ConfigModel.findOne();
     if (!config) {
-      Logger.debug("No config found in database")
-      return null
+      Logger.debug('No config found in database');
+      return null;
     }
-    return config.data as ConfigFile
+    return config.data as ConfigFile;
   } catch (err) {
-    Logger.debug(`Error in getConfigFromDatabase: ${err}`)
-    return null
+    Logger.debug(`Error in getConfigFromDatabase: ${err}`);
+    return null;
   }
 }

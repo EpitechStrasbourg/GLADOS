@@ -1,3 +1,0 @@
-interface ApiData {
-  error?: string
-}

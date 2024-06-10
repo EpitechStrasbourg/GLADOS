@@ -2,7 +2,7 @@ import ConfigModule from "@/configModule"
 import axios from "axios"
 
 import { SlashCommand, SlashCommandConfig } from "@/types/command"
-import { Logger } from "@/lib/logger"
+import Logger from "@/lib/logger"
 
 const config: SlashCommandConfig = {
   description: "Init the channels and roles according to the config",
