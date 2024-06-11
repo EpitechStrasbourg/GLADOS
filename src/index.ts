@@ -35,7 +35,7 @@ const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN)
     const { slashCommands, slashConfigs } = await loadSlashCommands()
 
     const res = (await rest.put(
-      Routes.applicationCommands(env.DISCORD_APP_ID!),
+      Routes.applicationCommands(env.GUILD_ID!),
       {
         body: slashCommands,
       }

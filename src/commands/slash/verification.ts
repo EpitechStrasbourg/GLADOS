@@ -1,5 +1,5 @@
 import { UserModel } from "@/database/models"
-import { fetchUserData, syncRolesAndRename } from "@/utils/authentication"
+import { fetchUserData, syncRolesAndRename } from "@/utils/userSynchronization"
 
 import { SlashCommand, SlashCommandConfig } from "@/types/command"
 import Logger from "@/lib/logger"

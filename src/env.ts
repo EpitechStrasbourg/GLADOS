@@ -15,7 +15,6 @@ const envSchema = z.object({
   POSTGRES_HOST: z.string(),
   POSTGRES_PORT: z.string(),
   DISCORD_TOKEN: z.string(),
-  DISCORD_APP_ID: z.string(),
   SAURON_TOKEN: z.string(),
   DEBUG: z.string().transform((val) => {
     const lower = val.toLowerCase()

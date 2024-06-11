@@ -6,7 +6,7 @@ import {
 } from '@/utils/nameUtils';
 import { Guild } from 'discord.js';
 
-import { UserSauronInfo } from '@/types/userSauronInfo';
+import { City, UserSauronInfo } from '@/types/userSauronInfo';
 import Logger from '@/lib/logger';
 
 const PGE_cycles = ['bachelor', 'master'];
@@ -52,19 +52,19 @@ export async function syncRolesAndRename(
   try {
     const member = await guild.members.fetch(memberId);
     if (!member) {
-      Logger.error("error", `Member not found: ${memberId}`);
+      Logger.error('error', `Member not found: ${memberId}`);
       return;
     }
 
-    let userRoles: string[] = [];
+    const userRoles: string[] = [];
     const roles = await guild.roles.fetch();
-    if (user.roles.includes("student") && user.promo) {
+    if (user.roles.includes('student') && user.promo) {
       if (PGE_cycles.includes(user.promo.cursus.code) && roles) {
         const roleName = PGE_suffix + user.promo.promotion_year.toString();
         const guildRole = roles.find((r) => r.name === roleName);
         const schoolRole = roles.find((r) => r.name === studentRoleName);
         if (!guildRole || !schoolRole) {
-          Logger.error("error", `Role not found: ${roleName}`);
+          Logger.error('error', `Role not found: ${roleName}`);
           return;
         }
         userRoles.push(guildRole.id, schoolRole.id);
@@ -72,13 +72,13 @@ export async function syncRolesAndRename(
     }
 
     user.cities.forEach((city: City) => {
-      const tpmRole = roles.find(r => r.name === city.name);
+      const tpmRole = roles.find((r) => r.name === city.name);
       if (!tpmRole) {
-        Logger.error("error", `Role not found: ${city.name}`);
+        Logger.error('error', `Role not found: ${city.name}`);
         return;
       }
       userRoles.push(tpmRole.id);
-    })
+    });
 
     await member.roles.set(userRoles);
 
