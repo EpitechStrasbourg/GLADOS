@@ -33,6 +33,12 @@ export default async function updateConfigChannel(
       configCategory = await guild.channels.create({
         name: GLADOS_CATEGORY_NAME,
         type: ChannelType.GuildCategory,
+        permissionOverwrites: [
+          {
+            id: guild.roles.everyone.id,
+            deny: ['ViewChannel'],
+          },
+        ],
       });
     }
 
@@ -48,6 +54,12 @@ export default async function updateConfigChannel(
         name: GLADOS_CHANNEL_CONFIG_NAME,
         type: ChannelType.GuildText,
         parent: configCategory,
+        permissionOverwrites: [
+          {
+            id: guild.roles.everyone.id,
+            deny: ['ViewChannel'],
+          },
+        ],
       });
     }
 

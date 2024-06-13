@@ -34,19 +34,6 @@ const rest = new REST({ version: '10' }).setToken(env.DISCORD_TOKEN);
     Logger.debug('Started refreshing application (/) commands.');
 
     const { slashCommands, slashConfigs } = await loadSlashCommands();
-
-    /*
-    console.log(getPromotionFromTekYear(2024));
-    console.log(getPromotionFromTekYear(2025));
-    console.log(getPromotionFromTekYear(2026));
-    console.log(getPromotionFromTekYear(2027));
-    console.log(getPromotionFromTekYear(2028));
-    console.log(getTekYearFromPromotion(5));
-    console.log(getTekYearFromPromotion(4));
-    console.log(getTekYearFromPromotion(3));
-    console.log(getTekYearFromPromotion(2));
-    console.log(getTekYearFromPromotion(1));
-    */
     const res = (await rest.put(
       Routes.applicationCommands(env.DISCORD_APP_ID),
       {

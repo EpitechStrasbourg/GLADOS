@@ -1,6 +1,5 @@
 import { ConfigFile } from '@/configModule/types';
 import ConfigModel from '@/database/models/model.config';
-
 import Logger from '@/lib/logger';
 
 /**
@@ -16,7 +15,7 @@ export default async function saveConfigFromDatabase(
     if (!config) {
       await ConfigModel.create({ data: configFile });
     } else {
-      config.data = configFile;
+      config.set('data', configFile);
       await config.save();
     }
     return true;

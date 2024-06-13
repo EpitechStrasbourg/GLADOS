@@ -26,7 +26,6 @@ export default async function handleEvents() {
       );
     let loaded = 0;
     await Promise.allSettled(eventFiles.map(async (file) => {
-      console.log('hihi');
       const eventName = file.split('.')[0] as keyof typeof Events;
 
       // Skip invalid events
@@ -45,7 +44,6 @@ export default async function handleEvents() {
           throw new Error(`Missing default export in '${file}'`);
         }
         const eventFunction: (...args: unknown[]) => Awaitable<void> = eventModule.default;
-        console.log('here');
         // @ts-expect-error Events contains all client events so this is fine
         client.on(Events[eventName], eventFunction);
         loaded += 1;

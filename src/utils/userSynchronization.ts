@@ -4,14 +4,45 @@ import {
   removeDigitsFromEnd,
   sliceAtChar,
 } from '@/utils/nameUtils';
-import { Guild } from 'discord.js';
+import { Guild, Role } from 'discord.js';
 
 import { City, UserSauronInfo } from '@/types/userSauronInfo';
 import Logger from '@/lib/logger';
+import { Roadblocks, RoadblocksResult } from '@/types/userSauronRoadblock';
+import ConfigModule from '@/configModule';
+import { ConfigFilePromotion } from '@/configModule/types';
+import getPromotionFromTekYear from './getPromotionFromTekYear';
 
 const PGE_cycles = ['bachelor', 'master'];
 const PGE_suffix = 'PGE ';
 const studentRoleName = 'Étudiant';
+
+export async function fetchUserRoadblocks(login: string): Promise< RoadblocksResult | null> {
+  const config = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `${process.env.SAURON_TOKEN}`,
+    },
+  };
+  const response = await fetch(
+    `https://api.sauron.epitest.eu/api/students/roadblocks?login=${login}&active_only=true&projected=false&limit=1&offset=0`,
+    config,
+  );
+  const data = await response.json();
+  if (!response.ok) {
+    Logger.error(
+      'error',
+      `Fetch failed for user ${login}. Error: ${response.status} ${data.error}`,
+    );
+    return null;
+  }
+  if (data.results.length === 0) {
+    Logger.error('error', `No results found for user ${login}`);
+    return null;
+  }
+  return data.results[0] as RoadblocksResult;
+}
 
 export async function fetchUserData(
   login: string,
@@ -41,6 +72,60 @@ export async function fetchUserData(
   } catch (error) {
     Logger.error('error', `Error fetching student data: ${error}`);
     return null;
+  }
+}
+
+function extractUnitFromRoadblock(roadblocks: Roadblocks, key: 'softskills' | 'technical_foundation' | 'technical_supplement' | 'professional_writings') {
+  if (roadblocks[key].units) {
+    return roadblocks[key].units!.map((unit) => unit.unit.toUpperCase());
+  }
+  return [];
+}
+
+export async function syncRolesModules(guild: Guild, memberId: string, user: RoadblocksResult): Promise<void> {
+  try {
+    const member = await guild.members.fetch(memberId);
+    const roles = await guild.roles.fetch();
+    if (!member) {
+      Logger.error('error', `Member not found: ${memberId}`);
+      return;
+    }
+    const userRoles: Role[] = [];
+    const config = await ConfigModule.getConfigFromDatabase();
+    if (!config) {
+      Logger.error('error', 'Config not found');
+      return;
+    }
+    const promotionYear = getPromotionFromTekYear(user.student.promo.promotion_year);
+    const roleName = PGE_suffix + promotionYear;
+    const configName = roleName.replaceAll(' ', '_');
+    const configModules = config[configName] as ConfigFilePromotion;
+    if (!configModules) {
+      Logger.error('error', `Config not found: ${configName}`);
+      return;
+    }
+    await Promise.allSettled(configModules.modules.map(async (module) => {
+      await Promise.allSettled(module.sub_modules.map(async (sub) => {
+        await Promise.allSettled(Object.keys(user.roadblocks).map(async (roadblock) => {
+          if (roadblock === 'softskills' || roadblock === 'technical_foundation' || roadblock === 'technical_supplement' || roadblock === 'professional_writings') {
+            const units = extractUnitFromRoadblock(user.roadblocks, roadblock as 'softskills' | 'technical_foundation' | 'technical_supplement' | 'professional_writings');
+            if (units.includes(sub.toUpperCase())) {
+              const guildRole = roles.find((r) => r.name === `${roleName.replace(' ', '')} ${module.name.toUpperCase()}`);
+              if (!guildRole) {
+                Logger.error('error', `Role not found: ${module.name}`);
+                return;
+              }
+              userRoles.push(guildRole);
+            }
+          }
+        }));
+      }));
+    }));
+    await Promise.allSettled(userRoles.map(async (role) => {
+      await member.roles.add(role);
+    }));
+  } catch (error) {
+    Logger.error('error', `Error syncing module roles: ${error}`);
   }
 }
 

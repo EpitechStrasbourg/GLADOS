@@ -20,11 +20,15 @@
         ],
         "modules": [
             {
+                "name": "YEP",
+                "sub_modules": [
+                    "B-YEP-400"
+                ]
+            },
+            {
                 "name": "PSU",
                 "sub_modules": [
-                    "B-CPE-100",
-                    "B-CPE-200",
-                    "B-CPE-300"
+                    "B-PSU-400"
                 ]
             }
         ]
