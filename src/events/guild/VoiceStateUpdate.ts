@@ -1,6 +1,6 @@
 import { ChannelType, VoiceState } from "discord.js"
 
-import { Logger } from "@/lib/logger"
+import Logger from "@/lib/logger"
 
 export const temporaryChannelPattern = /^Voice Chat #(\d+)$/
 export const renamedChannelPattern = /^(.*) - Voice Chat #(\d+)$/

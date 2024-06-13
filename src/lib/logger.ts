@@ -1,35 +1,39 @@
-import { env } from "@/env"
-import chalk from "chalk"
+import { env } from '@/env';
+import chalk from 'chalk';
 
-export class Logger {
+export default class Logger {
   private static _getTimeStamp() {
-    return `[${new Date().toISOString()}]`
+    return `[${new Date().toISOString()}]`;
   }
 
-  public static log(...messages: any[]) {
+  public static log(...messages: unknown[]) {
     console.log(
-      `${chalk.green("[LOG]")} ${this._getTimeStamp()} ${messages.join(" ")}`
-    )
+      `${chalk.green('[LOG]')} ${this._getTimeStamp()} ${messages.join(' ')}`,
+    );
   }
-  public static info(...messages: any[]) {
+
+  public static info(...messages: unknown[]) {
     console.log(
-      `${chalk.blue("[INFO]")} ${this._getTimeStamp()} ${messages.join(" ")}`
-    )
+      `${chalk.blue('[INFO]')} ${this._getTimeStamp()} ${messages.join(' ')}`,
+    );
   }
-  public static error(...messages: any[]) {
+
+  public static error(...messages: unknown[]) {
     console.error(
-      `${chalk.red("[ERROR]")} ${this._getTimeStamp()} ${messages.join(" ")}`
-    )
+      `${chalk.red('[ERROR]')} ${this._getTimeStamp()} ${messages.join(' ')}`,
+    );
   }
-  public static warn(...messages: any[]) {
+
+  public static warn(...messages: unknown[]) {
     console.warn(
-      `${chalk.yellow("[WARN]")} ${this._getTimeStamp()} ${messages.join(" ")}`
-    )
+      `${chalk.yellow('[WARN]')} ${this._getTimeStamp()} ${messages.join(' ')}`,
+    );
   }
-  public static debug(...messages: any[]) {
-    if (env.DEBUG === false) return
+
+  public static debug(...messages: unknown[]) {
+    if (env.DEBUG === false) return;
     console.debug(
-      `${chalk.magenta("[DEBUG]")} ${this._getTimeStamp()} ${messages.join(" ")}`
-    )
+      `${chalk.magenta('[DEBUG]')} ${this._getTimeStamp()} ${messages.join(' ')}`,
+    );
   }
 }

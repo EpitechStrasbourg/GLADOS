@@ -4,10 +4,10 @@ import sendEmailToUser from "@/utils/mailer"
 import generateVerificationCode from "@/utils/verificationCode"
 
 import { SlashCommand, SlashCommandConfig } from "@/types/command"
-import { Logger } from "@/lib/logger"
+import Logger from "@/lib/logger"
 
 const config: SlashCommandConfig = {
-  description: "Utilise cette commande pour te connecter à ton compte Epitech.",
+  description: "Utilisez cette commande pour vous connecter à votre compte Epitech.",
   usage: "/login",
   options: [
     {
@@ -64,7 +64,7 @@ const command: SlashCommand = {
         `loginHandler: ${interaction.user.id} with email ${email} verification code: ${verificationCode} sent`
       )
       interaction.editReply(
-        "Un code de vérification a été envoyé sur ton adresse mail Epitech.\nRentre le à l'aide de la commande **/verification**."
+        "Un code de vérification a été envoyé sur votre adresse mail Epitech.\nRentrez le à l'aide de la commande **/verification**."
       )
     } catch (e) {
       interaction.editReply("Une erreur est survenue.")

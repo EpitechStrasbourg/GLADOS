@@ -2,7 +2,7 @@ import { DataTypes, Model, Sequelize } from "sequelize"
 
 export default class ConfigModel extends Model {
   public id!: number
-  public data!: Record<string, any>
+  public data!: Record<string, unknown>
   public createdAt!: Date
   public updatedAt!: Date
 

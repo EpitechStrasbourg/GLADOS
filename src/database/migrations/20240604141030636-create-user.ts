@@ -2,7 +2,7 @@ import { DataTypes, QueryInterface, Sequelize } from "sequelize"
 
 export default {
   up: async (queryInterface: QueryInterface, sequelize: Sequelize) => {
-    queryInterface.createTable("student", {
+    queryInterface.createTable("user", {
       id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -37,7 +37,7 @@ export default {
       },
     })
   },
-  down: async (queryInterface: QueryInterface, sequelize: Sequelize) => {
-    queryInterface.dropTable("student")
+  down: async (queryInterface: QueryInterface) => {
+    queryInterface.dropTable("user")
   },
 }

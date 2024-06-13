@@ -1,4 +1,4 @@
-import Cron from "node-cron"
+import Cron from 'node-cron';
 
 interface Job {
   id: number
@@ -6,30 +6,28 @@ interface Job {
 }
 
 class JobController {
-  private jobs: Cron.ScheduledTask[] = []
+  private jobs: { task: Cron.ScheduledTask; cronString: string }[] = [];
 
   public create(jobFunction: () => void, cronString: string): void {
-    const job = Cron.schedule(cronString, jobFunction)
-
-    jobFunction()
-
-    this.jobs.push(job)
+    const job = Cron.schedule(cronString, jobFunction);
+    jobFunction();
+    this.jobs.push({ task: job, cronString });
   }
 
   public stopAll(): void {
-    this.jobs.forEach((job) => job.stop())
+    this.jobs.forEach(({ task }) => task.stop());
   }
 
   public startAll(): void {
-    this.jobs.forEach((job) => job.start())
+    this.jobs.forEach(({ task }) => task.start());
   }
 
   public listJobs(): Job[] {
     return this.jobs.map((job, index) => ({
       id: index,
-      cronString: (job as any)._task.schedule,
-    }))
+      cronString: job.cronString,
+    }));
   }
 }
 
-export default JobController
+export default JobController;

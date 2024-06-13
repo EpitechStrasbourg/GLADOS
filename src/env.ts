@@ -1,8 +1,6 @@
 import dotenv from "dotenv"
 import { z } from "zod"
 
-import { Logger } from "./lib/logger"
-
 dotenv.config()
 
 const envSchema = z.object({
@@ -17,7 +15,6 @@ const envSchema = z.object({
   POSTGRES_HOST: z.string(),
   POSTGRES_PORT: z.string(),
   DISCORD_TOKEN: z.string(),
-  DISCORD_APP_ID: z.string(),
   SAURON_TOKEN: z.string(),
   DEBUG: z.string().transform((val) => {
     const lower = val.toLowerCase()
@@ -25,6 +22,7 @@ const envSchema = z.object({
     return false
   }),
   NODE_ENV: z.string(),
+  GUILD_ID: z.string(),
 })
 
 function parseEnv(schema: z.ZodSchema) {
@@ -32,7 +30,7 @@ function parseEnv(schema: z.ZodSchema) {
     return schema.parse(process.env)
   } catch (err) {
     if (!(err instanceof z.ZodError)) {
-      Logger.error(err)
+      console.error(err)
       process.exit(1)
     }
 

@@ -25,7 +25,7 @@ export default {
       },
     })
   },
-  down: async (queryInterface: QueryInterface, sequelize: Sequelize) => {
+  down: async (queryInterface: QueryInterface) => {
     queryInterface.dropTable("config")
   },
 }
