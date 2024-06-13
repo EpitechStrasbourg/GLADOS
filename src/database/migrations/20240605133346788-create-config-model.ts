@@ -8,7 +8,7 @@ export default {
         autoIncrement: true,
         primaryKey: true,
       },
-      config: {
+      data: {
         type: DataTypes.JSONB,
         defaultValue: {},
         allowNull: false,
