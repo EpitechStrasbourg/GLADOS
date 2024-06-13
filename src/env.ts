@@ -23,6 +23,7 @@ const envSchema = z.object({
   }),
   NODE_ENV: z.string(),
   GUILD_ID: z.string(),
+  DISCORD_APP_ID: z.string(),
 });
 
 function parseEnv(schema: z.ZodSchema) {

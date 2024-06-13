@@ -31,14 +31,6 @@ const client = DiscordClient.getInstance({
 const rest = new REST({ version: '10' }).setToken(env.DISCORD_TOKEN);
 (async () => {
   try {
-    await connectToDatabase(sequelize);
-    const jobController = new JobController();
-    jobController.create(() => {
-      syncConfig(client);
-    }, '* * * * *');
-    jobController.create(() => {
-      syncStudentInfo(client);
-    }, '* * * * *');
     Logger.debug('Started refreshing application (/) commands.');
 
     const { slashCommands, slashConfigs } = await loadSlashCommands();
@@ -55,9 +47,8 @@ const rest = new REST({ version: '10' }).setToken(env.DISCORD_TOKEN);
     console.log(getTekYearFromPromotion(2));
     console.log(getTekYearFromPromotion(1));
     */
-
     const res = (await rest.put(
-      Routes.applicationCommands(env.GUILD_ID!),
+      Routes.applicationCommands(env.DISCORD_APP_ID),
       {
         body: slashCommands,
       },
@@ -66,7 +57,15 @@ const rest = new REST({ version: '10' }).setToken(env.DISCORD_TOKEN);
     client.slashConfigs = slashConfigs;
 
     Logger.debug(`Successfully reloaded ${res.length} (/) commands.`);
-    client.login(env.DISCORD_TOKEN);
+    await client.login(env.DISCORD_TOKEN);
+    await connectToDatabase(sequelize);
+    const jobController = new JobController();
+    jobController.create(() => {
+      syncConfig(client);
+    }, '* * * * *');
+    jobController.create(() => {
+      syncStudentInfo(client);
+    }, '* * * * *');
   } catch (error) {
     Logger.error(`Error refreshing application (/) commands: \n\t${error}`);
   }
