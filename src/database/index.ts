@@ -1,5 +1,5 @@
 import * as Models from '@/database/models';
-import { env } from '@/env';
+import env from '@/env';
 import { Sequelize } from 'sequelize';
 
 export default async (sequelize: Sequelize) => {

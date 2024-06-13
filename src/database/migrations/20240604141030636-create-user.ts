@@ -1,8 +1,8 @@
-import { DataTypes, QueryInterface, Sequelize } from "sequelize"
+import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
 export default {
   up: async (queryInterface: QueryInterface, sequelize: Sequelize) => {
-    queryInterface.createTable("user", {
+    queryInterface.createTable('user', {
       id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -28,16 +28,16 @@ export default {
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
       },
-    })
+    });
   },
   down: async (queryInterface: QueryInterface) => {
-    queryInterface.dropTable("user")
+    queryInterface.dropTable('user');
   },
-}
+};

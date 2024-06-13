@@ -1,13 +1,13 @@
-import dotenv from "dotenv"
-import { z } from "zod"
+import dotenv from 'dotenv';
+import { z } from 'zod';
 
-dotenv.config()
+dotenv.config();
 
 const envSchema = z.object({
   SEQUELIZE_LOGGING: z.string().transform((val) => {
-    const lower = val.toLowerCase()
-    if (lower === "true" || lower === "1") return true
-    return false
+    const lower = val.toLowerCase();
+    if (lower === 'true' || lower === '1') return true;
+    return false;
   }),
   POSTGRES_USER: z.string(),
   POSTGRES_PASSWORD: z.string(),
@@ -17,26 +17,29 @@ const envSchema = z.object({
   DISCORD_TOKEN: z.string(),
   SAURON_TOKEN: z.string(),
   DEBUG: z.string().transform((val) => {
-    const lower = val.toLowerCase()
-    if (lower === "true" || lower === "1") return true
-    return false
+    const lower = val.toLowerCase();
+    if (lower === 'true' || lower === '1') return true;
+    return false;
   }),
   NODE_ENV: z.string(),
   GUILD_ID: z.string(),
-})
+});
 
 function parseEnv(schema: z.ZodSchema) {
   try {
-    return schema.parse(process.env)
+    return schema.parse(process.env);
   } catch (err) {
     if (!(err instanceof z.ZodError)) {
-      console.error(err)
-      process.exit(1)
+      console.error(err);
+      process.exit(1);
     }
 
-    console.error("Invalid environment variables:", err.flatten().fieldErrors)
-    process.exit(1)
+    console.error('Invalid environment variables:', err.flatten().fieldErrors);
+    process.exit(1);
   }
+  return null;
 }
 
-export const env = parseEnv(envSchema)
+const env = parseEnv(envSchema);
+
+export default env;

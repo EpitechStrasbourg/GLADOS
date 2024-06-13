@@ -1,6 +1,6 @@
 import ConfigModule from '@/configModule';
 import DiscordClient from '@/lib/client';
-import { env } from '@/env';
+import env from '@/env';
 import Logger from '@/lib/logger';
 import { acquireLock, isLockAcquired, releaseLock } from '@/utils/configMutex';
 

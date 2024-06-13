@@ -1,5 +1,5 @@
 import path from 'path';
-import { env } from '@/env';
+import env from '@/env';
 import { SlashCommandBuilder } from 'discord.js';
 import fs from 'fs-extra';
 

@@ -1,10 +1,13 @@
-import { DataTypes, Model, Sequelize } from "sequelize"
+import { DataTypes, Model, Sequelize } from 'sequelize';
 
 export default class ConfigModel extends Model {
-  public id!: number
-  public data!: Record<string, unknown>
-  public createdAt!: Date
-  public updatedAt!: Date
+  public id!: number;
+
+  public data!: Record<string, unknown>;
+
+  public createdAt!: Date;
+
+  public updatedAt!: Date;
 
   public static definition(sequelize: Sequelize) {
     ConfigModel.init(
@@ -16,10 +19,10 @@ export default class ConfigModel extends Model {
         },
       },
       {
-        tableName: "config",
+        tableName: 'config',
         sequelize,
-      }
-    )
+      },
+    );
   }
 
   public static associate() {}
