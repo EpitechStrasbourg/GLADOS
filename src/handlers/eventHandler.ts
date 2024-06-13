@@ -14,19 +14,19 @@ const eventsSubdirectories = ['client', 'guild'] as const;
  * Load all events file in `events` folder.
  * Only `.ts` files are loaded and files starting with an underscode (`_`) are ignored.
  */
-export default function handleEvents() {
+export default async function handleEvents() {
   const client = DiscordClient.getInstance();
 
   const loadEvents = async (dir: string): Promise<number> => {
-    let loadedEvents = 0;
     const eventFiles = fs
       .readdirSync(path.join(__dirname, `../events/${dir}`))
       .filter(
         (file) => (file.endsWith('.ts') || file.endsWith('.js'))
           && !file.startsWith('_'),
       );
-
-    eventFiles.forEach(async (file) => {
+    let loaded = 0;
+    await Promise.allSettled(eventFiles.map(async (file) => {
+      console.log('hihi');
       const eventName = file.split('.')[0] as keyof typeof Events;
 
       // Skip invalid events
@@ -45,18 +45,18 @@ export default function handleEvents() {
           throw new Error(`Missing default export in '${file}'`);
         }
         const eventFunction: (...args: unknown[]) => Awaitable<void> = eventModule.default;
-
+        console.log('here');
         // @ts-expect-error Events contains all client events so this is fine
         client.on(Events[eventName], eventFunction);
-        loadedEvents += 1;
+        loaded += 1;
       } catch (err) {
         Logger.error(
           `Failed to load event '${eventName}': \n\t${(err as Error).message}`,
         );
       }
-    });
+    }));
 
-    return loadedEvents;
+    return loaded;
   };
 
   eventsSubdirectories.forEach(async (dir) => {

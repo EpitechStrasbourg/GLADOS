@@ -10,5 +10,5 @@ export default function getTekYearFromPromotion(
   promotionYear: number,
   cursusNbYear: number = 5,
 ): number {
-  return cursusNbYear + 1 - (promotionYear - getCurrentYear()) + 1;
+  return cursusNbYear + 1 - (promotionYear - getCurrentYear());
 }
