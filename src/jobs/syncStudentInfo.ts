@@ -8,7 +8,7 @@ import env from '@/env';
 export default async function syncStudentInfo(client: DiscordClient): Promise<void> {
   await client.guilds.fetch();
   try {
-    const users = await User.findAll();
+    const users = await User.findAll({ where: { verified: true } });
     await Promise.allSettled(users.map(async (user) => {
       const login = user.getDataValue('login');
       const userData = await fetchUserData(login);

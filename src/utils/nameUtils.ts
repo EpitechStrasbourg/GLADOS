@@ -1,4 +1,4 @@
-export const removeDigitsFromEnd = (str: string): string => str.replace('/d+$/', '');
+export const removeDigitsFromEnd = (str: string): string => str.replace(/\d+$/, '');
 
 export const capitalizeFirstCharacter = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 

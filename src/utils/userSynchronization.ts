@@ -191,6 +191,15 @@ export async function syncRolesAndRename(
       }
     }
 
+    if (user.roles.includes('pedago')) {
+      const guildRole = roles.find((r) => r.name === 'Pédago');
+      if (!guildRole) {
+        Logger.error('error', 'Role not found: Pédago');
+        return;
+      }
+      userRoles.push(guildRole.id);
+    }
+
     user.cities.forEach((city: City) => {
       const tpmRole = roles.find((r) => r.name === city.name);
       if (!tpmRole) {
@@ -201,14 +210,11 @@ export async function syncRolesAndRename(
     });
 
     await member.roles.set(userRoles);
-
     if (isAdmin(user.roles)) return;
 
     const loginBits = sliceAtChar(user.login, '@').split('.');
     if (loginBits.length >= 2) {
-      const firstName = capitalizeFirstCharacter(
-        removeDigitsFromEnd(loginBits[0]),
-      );
+      const firstName = capitalizeFirstCharacter(removeDigitsFromEnd(loginBits[0]));
       const lastName = loginBits[1].toUpperCase();
       await member.setNickname(`${firstName} ${lastName}`);
     }
