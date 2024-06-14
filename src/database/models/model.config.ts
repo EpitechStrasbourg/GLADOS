@@ -1,13 +1,17 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
 export default class ConfigModel extends Model {
-  public id!: number;
+  /* auto-generated fields */
 
-  public data!: Record<string, unknown>;
+  declare id: number;
 
-  public createdAt!: Date;
+  declare createdAt: Date;
 
-  public updatedAt!: Date;
+  declare updatedAt: Date;
+
+  /* fields */
+
+  declare data: Record<string, unknown>;
 
   public static definition(sequelize: Sequelize) {
     ConfigModel.init(
