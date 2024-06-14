@@ -13,13 +13,9 @@ export default async function sortPromotionCategory(guild: Guild) {
       && channel.name.includes(PROMOTION_PREFIX),
   );
 
-  const sortChannel = [] as CategoryChannel[];
+  const sortChannel = Array.from(categories.values()) as CategoryChannel[];
 
-  categories.forEach((category) => {
-    sortChannel.push(category as CategoryChannel);
-  });
-
-  Promise.allSettled(sortChannel.map(async (channel, i) => {
+  await Promise.allSettled(sortChannel.map(async (channel, i) => {
     if (channel.rawPosition === i) return;
     await channel.setPosition(i);
   }));

@@ -4,7 +4,7 @@ import {
   ConfigFilePromotion,
 } from '@/configModule/types';
 
-function formatChannelName(name: string): string {
+export function formatChannelName(name: string): string {
   return name.toLowerCase().trim().replace(/ /g, '-');
 }
 

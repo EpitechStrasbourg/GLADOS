@@ -22,7 +22,6 @@ export default async function syncConfig(client: DiscordClient): Promise<void> {
         const guild = await guildConfig.fetch();
         const module = new ConfigModule(guild, config, null);
         await module.processConfig();
-        await ConfigModule.updateConfigChannel(guild, config);
         Logger.info('Config synced successfully');
       }
     }

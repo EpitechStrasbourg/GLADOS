@@ -1,5 +1,6 @@
 import { PROMOTION_PREFIX } from '@/configModule/const';
 import { ConfigFile, ConfigFileChannel } from '@/configModule/types';
+import { formatChannelName } from '@/utils/formatConfig';
 import stringToChannelType from '@/utils/stringToChannelType';
 import { CategoryChannel, ChannelType, Guild } from 'discord.js';
 
@@ -26,7 +27,7 @@ export default async function generateCommonForPromotion(
       const existingChannel = guild.channels.cache.find(
         (channel) => channel
           && channel.type === stringToChannelType(channelConfig.type)
-          && channel.name === channelConfig.name
+          && formatChannelName(channel.name) === channelConfig.name
           && channel.parentId === category!.id,
       );
 

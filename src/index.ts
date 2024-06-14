@@ -49,7 +49,7 @@ const rest = new REST({ version: '10' }).setToken(env.DISCORD_TOKEN);
     const jobController = new JobController();
     jobController.create(() => {
       syncConfig(client);
-    }, '* * * * *');
+    }, '0 * * * *');
     jobController.create(() => {
       syncStudentInfo(client);
     }, '* * * * *');

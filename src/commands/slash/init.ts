@@ -74,8 +74,6 @@ const command: SlashCommand = {
       Logger.info('Config file processed successfully');
       await ConfigModule.saveConfigToDatabase(file.data);
       Logger.info('Config file saved to database');
-      await ConfigModule.updateConfigChannel(interaction.guild!, file.data);
-      Logger.info('Config file updated in channel');
       await interaction.editReply({ content: 'Config updated successfully.' });
     } catch (err) {
       Logger.error('Error while processing config file: ', err);

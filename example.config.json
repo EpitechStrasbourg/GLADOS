@@ -1,83 +1,148 @@
 {
-    "PGE_1": {
-        "channels": [
-
-        ],
-        "modules": [
-            {
-                "name": "CPE",
-                "sub_modules": [
-                    "B-CPE-100",
-                    "B-CPE-200",
-                    "B-CPE-300"
-                ]
-            }
-        ]
-    },
-    "PGE_2": {
-        "channels": [
-
-        ],
-        "modules": [
-            {
-                "name": "YEP",
-                "sub_modules": [
-                    "B-YEP-400"
-                ]
-            },
-            {
-                "name": "PSU",
-                "sub_modules": [
-                    "B-PSU-400"
-                ]
-            }
-        ]
-    },
-    "PGE_3": {
-        "channels": [
-
-        ],
-        "modules": [
-            {
-                "name": "MUL",
-                "sub_modules": [
-                    "B-CPE-100",
-                    "B-CPE-200",
-                    "B-CPE-300"
-                ]
-            }
-        ]
-    },
-    "PGE_4": {
-        "channels": [
-            {
-                "type": "GuildText",
-                "name": "etranger"
-            }
-        ],
-        "modules": [
-
-        ]
-    },
-    "PGE_5": {
-        "channels": [
-            {
-                "type": "GuildText",
-                "name": "paris"
-            }
-        ],
-        "modules": [
-
-        ]
-    },
-    "*": [
-        {
-            "name": "📣・annonces",
-            "type": "GuildAnnouncement"
-        },
-        {
-            "name": "💬・general",
-            "type": "GuildText"
-        }
+  "PGE_1": {
+    "channels": [
+      {
+        "type": "GuildText",
+        "name": "🩳Piscine-C"
+      },
+      {
+        "type": "GuildText",
+        "name": "💻Recherche de stage"
+      }
+    ],
+    "modules": [
+      {
+        "name": "CPE",
+        "sub_modules": ["B-CPE-100", "B-CPE-200", "B-CPE-300"]
+      },
+      {
+        "name": "AIA",
+        "sub_modules": ["B-AIA-200"]
+      },
+      {
+        "name": "MUL",
+        "sub_modules": ["B-MUL-100", "B-MUL-200"]
+      },
+      {
+        "name": "PSU",
+        "sub_modules": ["B-PSU-100", "B-PSU-200"]
+      },
+      {
+        "name": "YEP",
+        "sub_modules": ["B-YEP-400"]
+      },
+      {
+        "name": "PRO",
+        "sub_modules": ["B-PRO-100", "B-PRO-200"]
+      },
+      {
+        "name": "MAT",
+        "sub_modules": ["B-MAT-100", "B-MAT-200"]
+      }
     ]
+  },
+  "PGE_2": {
+    "channels": [
+      {
+        "type": "GuildText",
+        "name": "🩳Piscine-CPP"
+      },
+      {
+        "type": "GuildText",
+        "name": "💻Stage"
+      }
+    ],
+    "modules": [
+      {
+        "name": "YEP",
+        "sub_modules": ["B-YEP-400"]
+      },
+      {
+        "name": "PSU",
+        "sub_modules": ["B-PSU-400"]
+      },
+      {
+        "name": "PRO",
+        "sub_modules": ["B-PRO-400"]
+      },
+      {
+        "name": "NWP",
+        "sub_modules": ["B-NWP-400"]
+      },
+      {
+        "name": "OOP",
+        "sub_modules": ["B-OOP-400"]
+      },
+      {
+        "name": "MAT",
+        "sub_modules": ["B-MAT-400"]
+      },
+      {
+        "name": "CCP",
+        "sub_modules": ["B-CCP-400"]
+      },
+      {
+        "name": "FUN",
+        "sub_modules": ["B-FUN-400"]
+      }
+    ]
+  },
+  "PGE_3": {
+    "channels": [
+      {
+        "type": "GuildText",
+        "name": "💻PartTime"
+      },
+      {
+        "type": "GuildText",
+        "name": "💻Stage"
+      },
+      {
+        "type": "GuildText",
+        "name": "🎓EIP"
+      }
+    ],
+    "modules": [
+      {
+        "name": "CPP",
+        "sub_modules": ["B-CPE-500"]
+      },
+      {
+        "name": "FUN",
+        "sub_modules": ["B-FUN-500"]
+      },
+      {
+        "name": "DEV",
+        "sub_modules": ["B-DEV-500"]
+      }
+    ]
+  },
+  "PGE_4": {
+    "channels": [
+      {
+        "type": "GuildText",
+        "name": "🛫etranger"
+      }
+    ],
+    "modules": []
+  },
+  "PGE_5": {
+    "channels": [
+      {
+        "type": "GuildText",
+        "name": "🗼paris"
+      }
+    ],
+    "modules": []
+  },
+  "*": [
+    {
+      "name": "📣・annonces",
+      "type": "GuildAnnouncement"
+    },
+    {
+      "name": "💬・general",
+      "type": "GuildText"
+    }
+  ]
 }
