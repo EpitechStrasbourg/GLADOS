@@ -1,5 +1,6 @@
 import Logger from '@/lib/logger';
 import { SlashCommand, SlashCommandConfig } from '@/types/command';
+import { PermissionsBitField } from 'discord.js';
 
 const config: SlashCommandConfig = {
   description: 'Delete every channels and roles created',
@@ -8,7 +9,7 @@ const config: SlashCommandConfig = {
 };
 
 const command: SlashCommand = {
-  // permissions: 0,
+  permissions: PermissionsBitField.Flags.Administrator,
   execute: async (interaction) => {
     try {
       await interaction.deferReply({ ephemeral: true });

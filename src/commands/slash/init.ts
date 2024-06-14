@@ -4,6 +4,7 @@ import axios from 'axios';
 import { SlashCommand, SlashCommandConfig, SlashCommandInteraction } from '@/types/command';
 import Logger from '@/lib/logger';
 import { acquireLock, isLockAcquired, releaseLock } from '@/utils/configMutex';
+import { PermissionsBitField } from 'discord.js';
 
 const config: SlashCommandConfig = {
   description: 'Init the channels and roles according to the config',
@@ -39,7 +40,7 @@ async function processInteraction(content: string, answer: boolean, interaction:
 }
 
 const command: SlashCommand = {
-  // permissions: 0,
+  permissions: PermissionsBitField.Flags.Administrator,
   execute: async (interaction) => {
     try {
       const answer = false;
