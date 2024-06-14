@@ -5,14 +5,12 @@ import loadSlashCommands from '@/loaders/slashCommands';
 import {
   GatewayIntentBits, IntentsBitField, REST, Routes,
 } from 'discord.js';
-import syncConfig from '@/jobs/syncConfig';
 import DiscordClient from '@/lib/client';
 import Logger from '@/lib/logger';
-import syncStudentInfo from '@/jobs/syncStudentInfo';
 
+import syncStudentInfo from '@/jobs/syncStudentInfo';
+import syncConfig from '@/jobs/syncConfig';
 import env from './env';
-// import getPromotionFromTekYear from './utils/getPromotionFromTekYear';
-// import getTekYearFromPromotion from './utils/getTekYearFromPromotion';
 
 interface DiscordResponse {
   length: number

@@ -1,6 +1,6 @@
 import _cleanOldPromotions from '@/configModule/cleanOldPromotions';
 import _deleteNotFoundChannels from '@/configModule/deleteNotFoundChannels';
-import _findOrCreateCategory from '@/configModule/findOrCreateCategory';
+import _findOrCreateCategory from '@/configModule/findOrCreatePromotionCategory';
 import _findOrCreateRole from '@/configModule/findOrCreateRole';
 import _generateCommonForPromotion from '@/configModule/generateCommonForPromotion';
 import _getConfigFromDatabase from '@/configModule/getConfigFromDatabase';

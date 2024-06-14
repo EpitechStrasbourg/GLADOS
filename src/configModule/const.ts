@@ -10,3 +10,5 @@ export const GLADOS_CATEGORY_NAME = 'GLADOS_DEV';
 
 // Channel name for the GLaDOS bot config
 export const GLADOS_CHANNEL_CONFIG_NAME = 'glados_config';
+
+export const JOIN_TO_CREATE_VOICE = '🤖・rejoins-pour-créer';
