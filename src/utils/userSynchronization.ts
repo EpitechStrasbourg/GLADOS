@@ -4,7 +4,7 @@ import {
   removeDigitsFromEnd,
   sliceAtChar,
 } from '@/utils/nameUtils';
-import { Guild, Role } from 'discord.js';
+import { Guild, GuildMember, Role } from 'discord.js';
 
 import { City, UserSauronInfo } from '@/types/userSauronInfo';
 import Logger from '@/lib/logger';
@@ -75,57 +75,92 @@ export async function fetchUserData(
   }
 }
 
-function extractUnitFromRoadblock(roadblocks: Roadblocks, key: 'softskills' | 'technical_foundation' | 'technical_supplement' | 'professional_writings') {
+function extractUnitFromRoadblock(roadblocks: Roadblocks, key: keyof Roadblocks) {
   if (roadblocks[key].units) {
     return roadblocks[key].units!.map((unit) => unit.unit.toUpperCase());
   }
   return [];
 }
 
-export async function syncRolesModules(guild: Guild, memberId: string, user: RoadblocksResult): Promise<void> {
+async function fetchMember(guild: Guild, memberId: string): Promise<GuildMember | null> {
   try {
-    const member = await guild.members.fetch(memberId);
-    const roles = await guild.roles.fetch();
-    if (!member) {
-      Logger.error('error', `Member not found: ${memberId}`);
-      return;
-    }
-    const userRoles: Role[] = [];
-    const config = await ConfigModule.getConfigFromDatabase();
-    if (!config) {
-      Logger.error('error', 'Config not found');
-      return;
-    }
-    const promotionYear = getPromotionFromTekYear(user.student.promo.promotion_year);
-    const roleName = PGE_suffix + promotionYear;
-    const configName = roleName.replaceAll(' ', '_');
-    const configModules = config[configName] as ConfigFilePromotion;
-    if (!configModules) {
-      Logger.error('error', `Config not found: ${configName}`);
-      return;
-    }
-    await Promise.allSettled(configModules.modules.map(async (module) => {
-      await Promise.allSettled(module.sub_modules.map(async (sub) => {
-        await Promise.allSettled(Object.keys(user.roadblocks).map(async (roadblock) => {
-          if (roadblock === 'softskills' || roadblock === 'technical_foundation' || roadblock === 'technical_supplement' || roadblock === 'professional_writings') {
-            const units = extractUnitFromRoadblock(user.roadblocks, roadblock as 'softskills' | 'technical_foundation' | 'technical_supplement' | 'professional_writings');
-            if (units.includes(sub.toUpperCase())) {
-              const guildRole = roles.find((r) => r.name === `${roleName.replace(' ', '')} ${module.name.toUpperCase()}`);
-              if (!guildRole) {
-                Logger.error('error', `Role not found: ${module.name}`);
-                return;
-              }
+    return await guild.members.fetch(memberId);
+  } catch {
+    Logger.error('Member not found', { memberId });
+    return null;
+  }
+}
+
+async function fetchRoles(guild: Guild): Promise<Role[]> {
+  return (await guild.roles.fetch()).map((role) => role);
+}
+
+async function fetchConfig() {
+  const config = await ConfigModule.getConfigFromDatabase();
+  if (!config) Logger.error('Config not found');
+  return config;
+}
+
+function isRelevantRoadblock(roadblock: string): boolean {
+  return ['softskills', 'technical_foundation', 'technical_supplement', 'professional_writings'].includes(roadblock);
+}
+
+async function addRolesToMember(member: GuildMember, roles: Role[]): Promise<void> {
+  try {
+    await Promise.all(roles.map((role) => member.roles.add(role)));
+  } catch (error) {
+    Logger.error('Error adding roles to member', { error });
+  }
+}
+
+async function getUserRoles(
+  user: RoadblocksResult,
+  configModules: ConfigFilePromotion,
+  roles: Role[],
+  roleName: string,
+): Promise<Role[]> {
+  const userRoles: Role[] = [];
+  configModules.modules.forEach((module) => {
+    module.sub_modules.forEach((sub) => {
+      Object.keys(user.roadblocks).forEach((roadblock) => {
+        if (isRelevantRoadblock(roadblock)) {
+          const units = extractUnitFromRoadblock(user.roadblocks, roadblock as keyof typeof user.roadblocks);
+          if (units.includes(sub.toUpperCase())) {
+            const guildRole = roles.find((r) => r.name === `${roleName.replace('_', '')} ${module.name.toUpperCase()}`);
+            if (guildRole) {
               userRoles.push(guildRole);
+            } else {
+              console.log('Role not found', { moduleName: module.name });
             }
           }
-        }));
-      }));
-    }));
-    await Promise.allSettled(userRoles.map(async (role) => {
-      await member.roles.add(role);
-    }));
+        }
+      });
+    });
+  });
+  return userRoles;
+}
+
+export async function syncRolesModules(guild: Guild, memberId: string, user: RoadblocksResult): Promise<void> {
+  try {
+    const member = await fetchMember(guild, memberId);
+    if (!member) return;
+
+    const roles = await fetchRoles(guild);
+    const config = await fetchConfig();
+    if (!config) return;
+
+    const promotionYear = getPromotionFromTekYear(user.student.promo.promotion_year);
+    const roleName = `${PGE_suffix}${promotionYear}`.replace(' ', '_');
+    const configModules = config[roleName] as ConfigFilePromotion;
+    if (!configModules) {
+      Logger.error('Config not found', { configName: roleName });
+      return;
+    }
+
+    const userRoles = await getUserRoles(user, configModules, roles, roleName);
+    await addRolesToMember(member, userRoles);
   } catch (error) {
-    Logger.error('error', `Error syncing module roles: ${error}`);
+    Logger.error('Error syncing module roles', { error });
   }
 }
 
