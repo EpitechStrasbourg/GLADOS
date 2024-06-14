@@ -77,7 +77,7 @@ const command: SlashCommand = {
           discordId: interaction.user.id,
           login: email,
           verificationCode,
-          isVerified: false,
+          verified: false,
         });
       }
 
