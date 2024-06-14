@@ -38,27 +38,26 @@ const command: SlashCommand = {
     }
 
     try {
-        const where = {
-          [Op.or]: [
-            { login: email },
-            { discordId: interaction.user.id },
-          ],
-        }
-        // verify if the user is already in the database and verify if the user is already verified
-        const user = await UserModel.findOne({where});
-        if (user && user.verified) {
-          interaction.editReply('Votre compte est déjà vérifié.');
-          return;
-        }
+      const where = {
+        [Op.or]: [
+          { login: email },
+          { discordId: interaction.user.id },
+        ],
+      };
+      // verify if the user is already in the database and verify if the user is already verified
+      const user = await UserModel.findOne({ where });
+      if (user && user.verified) {
+        interaction.editReply('Votre compte est déjà vérifié.');
+        return;
+      }
 
-        // verify 5 minutes between each email
-        if (user && new Date().getTime() - user.updatedAt.getTime() < 300000) {
-          interaction.editReply(
-            'Un email a déjà été envoyé il y a moins de 5 minutes. Veuillez patienter.',
-          );
-          return;
-        }
-
+      // verify 5 minutes between each email
+      if (user && new Date().getTime() - user.updatedAt.getTime() < 300000) {
+        interaction.editReply(
+          'Un email a déjà été envoyé il y a moins de 5 minutes. Veuillez patienter.',
+        );
+        return;
+      }
 
       const verificationCode = generateVerificationCode();
 

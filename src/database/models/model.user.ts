@@ -1,29 +1,28 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
 export default class UserModel extends Model {
-  
   /* fields */
-  
+
   declare displayName: string;
-  
+
   declare promo: string;
-  
+
   declare login: string;
-  
+
   /* auto-generated fields */
-  
+
   declare id: number;
-  
+
   declare createdAt: Date;
-  
+
   declare updatedAt: Date;
-  
+
   declare discordId: string;
-  
+
   declare cursus: string;
-  
+
   declare verificationCode: number;
-  
+
   declare verified: boolean;
 
   public static definition(sequelize: Sequelize) {
@@ -60,5 +59,4 @@ export default class UserModel extends Model {
   }
 
   public static associate() {}
-
 }
