@@ -4,21 +4,26 @@ import nodemailer, {
   Transporter,
 } from 'nodemailer';
 
+import { readFileSync } from 'fs';
+
 import Logger from '@/lib/logger';
+import env from '@/env';
+import path from 'path';
 
 const transporter: Transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: env.BOT_MAILER_SERVICE,
   auth: {
-    user: 'epitechDiscordBot@gmail.com',
-    pass: 'hxbdgtpckzlcrjhg',
+    user: env.BOT_MAILER,
+    pass: env.BOT_MAILER_PASSWORD,
   },
 });
 
-interface MailOptions extends SendMailOptions {
-  from: string
-  to: string
-  subject: string
-  text: string
+interface MailOptions extends SendMailOptions{
+  from: string;
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
 }
 
 const sendVerificationEmail = async (
@@ -26,11 +31,16 @@ const sendVerificationEmail = async (
   verificationCode: number,
   user: string,
 ): Promise<number> => {
+  let index = readFileSync(path.join(__dirname, 'reccources/index.html'), 'utf8');
+  index = index.replace('{{verificationCode}}', verificationCode.toString());
+  index = index.replace('{{user}}', user);
+
   const mailOptions: MailOptions = {
-    from: 'epitechDiscordBot@gmail.com',
+    from: env.BOT_MAILER,
     to,
     subject: 'Verification - Epitech Roles Manager',
     text: `Here is your code: ${verificationCode}\n\nIf you didn't ask for it, the request comes from the discord user ${user}`,
+    html: index,
   };
 
   return new Promise((resolve) => {

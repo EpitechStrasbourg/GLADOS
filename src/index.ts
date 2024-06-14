@@ -52,7 +52,7 @@ const rest = new REST({ version: '10' }).setToken(env.DISCORD_TOKEN);
     }, '0 * * * *');
     jobController.create(() => {
       syncStudentInfo(client);
-    }, '* * * * *');
+    }, '0 * * * *');
   } catch (error) {
     Logger.error(`Error refreshing application (/) commands: \n\t${error}`);
   }

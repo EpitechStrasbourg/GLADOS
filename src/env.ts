@@ -24,6 +24,9 @@ const envSchema = z.object({
   NODE_ENV: z.string(),
   GUILD_ID: z.string(),
   DISCORD_APP_ID: z.string(),
+  BOT_MAILER: z.string(),
+  BOT_MAILER_PASSWORD: z.string(),
+  BOT_MAILER_SERVICE: z.string(),
 });
 
 function parseEnv(schema: z.ZodSchema) {
