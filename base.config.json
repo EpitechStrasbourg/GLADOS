@@ -1,0 +1,130 @@
+{
+  "channels": [
+    {
+      "name": "💬・général",
+      "type": "GuildText",
+      "parent": "GLOBAL",
+      "categoryPosition": 0
+    },
+    {
+      "name": "🤖・Commandes",
+      "type": "GuildText",
+      "parent": "GLOBAL",
+      "categoryPosition": 0
+    },
+    {
+      "name": "🎙・général",
+      "type": "GuildVoice",
+      "parent": "SALONS VOCAUX",
+      "categoryPosition": 1
+    },
+    {
+      "name": "🤖・rejoins-pour-créer",
+      "type": "GuildVoice",
+      "parent": "SALONS VOCAUX",
+      "categoryPosition": 1
+    }
+  ],
+  "roles": [
+    {
+      "name": "Externe",
+      "permissions": ""
+    },
+    {
+      "name": "Étudiant",
+      "permissions": ""
+    },
+    {
+      "name": "Pédago",
+      "permissions": ""
+    },
+    {
+      "name": "DPR",
+      "permissions": ""
+    },
+    {
+      "name": "Responsable de module",
+      "permissions": ""
+    },
+    {
+      "name": "Rennes",
+      "permissions": ""
+    },
+    {
+      "name": "Lyon",
+      "permissions": ""
+    },
+    {
+      "name": "Bruxelles",
+      "permissions": ""
+    },
+    {
+      "name": "Cotonou",
+      "permissions": ""
+    },
+    {
+      "name": "Berlin",
+      "permissions": ""
+    },
+    {
+      "name": "Barcelona",
+      "permissions": ""
+    },
+    {
+      "name": "Moulins",
+      "permissions": ""
+    },
+    {
+      "name": "Paris",
+      "permissions": ""
+    },
+    {
+      "name": "Nantes",
+      "permissions": ""
+    },
+    {
+      "name": "Nice",
+      "permissions": ""
+    },
+    {
+      "name": "Montpellier",
+      "permissions": ""
+    },
+    {
+      "name": "Lille",
+      "permissions": ""
+    },
+    {
+      "name": "Bordeaux",
+      "permissions": ""
+    },
+    {
+      "name": "Toulouse",
+      "permissions": ""
+    },
+    {
+      "name": "Mulhouse",
+      "permissions": ""
+    },
+    {
+      "name": "Nancy",
+      "permissions": ""
+    },
+    {
+      "name": "Strasbourg",
+      "permissions": ""
+    },
+    {
+      "name": "La Réunion",
+      "permissions": ""
+    },
+    {
+      "name": "Marseille",
+      "permissions": ""
+    },
+    {
+      "name": "Abidjan",
+      "permissions": ""
+    }
+  ]
+}

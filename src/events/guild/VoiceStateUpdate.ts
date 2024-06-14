@@ -1,6 +1,7 @@
 import { ChannelType, VoiceState } from 'discord.js';
 
 import Logger from '@/lib/logger';
+import { JOIN_TO_CREATE_VOICE } from '@/configModule/const';
 
 export const temporaryChannelPattern = /^Voice Chat #(\d+)$/;
 export const renamedChannelPattern = /^(.*) - Voice Chat #(\d+)$/;
@@ -10,7 +11,7 @@ export default async (oldState: VoiceState, newState: VoiceState) => {
     newState.channel
     && (!oldState.channel || oldState.channel !== newState.channel)
   ) {
-    if (newState.channel.name === 'rejoins-pour-créer') {
+    if (newState.channel.name === JOIN_TO_CREATE_VOICE) {
       Logger.info('User joined voice channel creator');
       const channels = await newState.guild.channels.fetch(undefined, {
         force: true,

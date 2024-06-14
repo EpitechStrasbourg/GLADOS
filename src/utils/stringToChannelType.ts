@@ -10,12 +10,15 @@ export default function stringToChannelType(
 ):
   | ChannelType.GuildAnnouncement
   | ChannelType.GuildText
-  | ChannelType.GuildForum {
+  | ChannelType.GuildForum
+  | ChannelType.GuildVoice {
   switch (type) {
     case 'GuildAnnouncement':
       return ChannelType.GuildAnnouncement;
     case 'GuildText':
       return ChannelType.GuildText;
+    case 'GuildVoice':
+      return ChannelType.GuildVoice;
     case 'GuildForum':
       return ChannelType.GuildForum;
     default:

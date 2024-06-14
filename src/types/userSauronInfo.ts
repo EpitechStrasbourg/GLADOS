@@ -1,3 +1,5 @@
+import { ApiData } from '@/types/apiData';
+
 export interface City {
   code: string
   name: string
