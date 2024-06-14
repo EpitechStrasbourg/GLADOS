@@ -1,5 +1,7 @@
 import { UserModel } from '@/database/models';
-import { fetchUserData, syncRolesAndRename } from '@/utils/userSynchronization';
+import {
+  fetchUserData, fetchUserRoadblocks, syncRolesAndRename, syncRolesModules,
+} from '@/utils/userSynchronization';
 
 import { SlashCommand, SlashCommandConfig } from '@/types/command';
 import Logger from '@/lib/logger';
@@ -49,6 +51,9 @@ const command: SlashCommand = {
         interaction.user.id,
         userData,
       );
+      const roadblockData = await fetchUserRoadblocks(login);
+      if (roadblockData) await syncRolesModules(interaction.guild!, interaction.user.id, roadblockData);
+
       await UserModel.update(
         { verified: true },
         { where: { login } },
