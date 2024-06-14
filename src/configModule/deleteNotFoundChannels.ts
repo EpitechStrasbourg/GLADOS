@@ -3,6 +3,7 @@ import {
   ConfigFileChannel,
   ConfigFilePromotion,
 } from '@/configModule/types';
+import { formatChannelName } from '@/utils/formatConfig';
 import { CategoryChannel, Guild } from 'discord.js';
 
 /**
@@ -23,17 +24,10 @@ export default async function deleteNotFoundChannels(
   const configChannels = (config[key] as ConfigFilePromotion).channels;
   const { modules } = config[key] as ConfigFilePromotion;
 
-  await Promise.allSettled(guild.channels.cache.map(async (channel) => {
-    if (channel && channel.parentId === category.id) {
-      const configChannel = configChannels.find((c) => c.name === channel.name);
-      const module = modules.find((m) => m.name === channel.name);
-      if (
-        !configChannel
-        && !module
-        && !commonChannels.some((c) => c.name === channel.name)
-      ) {
-        await channel.delete();
-      }
-    }
-  }));
+  const channelsToDelete = guild.channels.cache.filter((channel) => channel.parentId === category.id
+    && !configChannels.some((c) => c.name === formatChannelName(channel.name))
+    && !modules.some((m) => m.name === formatChannelName(channel.name))
+    && !commonChannels.some((c) => c.name === formatChannelName(channel.name)));
+
+  await Promise.allSettled(channelsToDelete.map(async (channel) => channel.delete()));
 }

@@ -76,10 +76,14 @@ export default async function sortChannelsInCategory(
       ...sortedRemainingChannels,
     ];
 
-    await Promise.allSettled(orderedChannels.map(async (channel, index) => {
-      if (channel.rawPosition === index) return;
-      await channel.setPosition(index);
-    }));
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [index, channel] of orderedChannels.entries()) {
+      // eslint-disable-next-line no-await-in-loop
+      await channel.setPosition(index, {
+        relative: false,
+        reason: 'Sort channels',
+      });
+    }
   } catch (err) {
     throw new Error(`Failed to sort channels for ${category.name}: ${err}`);
   }
