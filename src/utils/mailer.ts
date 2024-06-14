@@ -24,12 +24,13 @@ interface MailOptions extends SendMailOptions {
 const sendVerificationEmail = async (
   to: string,
   verificationCode: number,
+  user: string,
 ): Promise<number> => {
   const mailOptions: MailOptions = {
     from: 'epitechDiscordBot@gmail.com',
     to,
     subject: 'Verification - Epitech Roles Manager',
-    text: `Here is your code: ${verificationCode}`,
+    text: `Here is your code: ${verificationCode}\n\nIf you didn't ask for it, the request comes from the discord user ${user}`,
   };
 
   return new Promise((resolve) => {

@@ -43,7 +43,7 @@ const command: SlashCommand = {
         'info',
         `loginHandler: ${interaction.user.id} with email ${email} verification code: ${verificationCode}`,
       );
-      await sendEmailToUser(email, verificationCode);
+      await sendEmailToUser(email, verificationCode, interaction.user.tag);
 
       if (await UserModel.findOne({ where: { login: email } })) {
         UserModel.update(
