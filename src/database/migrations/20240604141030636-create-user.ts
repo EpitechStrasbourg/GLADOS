@@ -25,6 +25,11 @@ export default {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      verified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,

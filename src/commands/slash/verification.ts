@@ -32,6 +32,10 @@ const command: SlashCommand = {
         await interaction.editReply('Code de vérification invalide.');
         return;
       }
+      if (user.verified) {
+        await interaction.editReply('Votre compte est déjà vérifié.');
+        return;
+      }
       const login = user.getDataValue('login');
       const userData = await fetchUserData(login);
       if (!userData) {
@@ -44,6 +48,10 @@ const command: SlashCommand = {
         interaction.guild!,
         interaction.user.id,
         userData,
+      );
+      await UserModel.update(
+        { verified: true },
+        { where: { login } },
       );
       await interaction.editReply('Compte vérifié avec succès.');
     } catch (error) {

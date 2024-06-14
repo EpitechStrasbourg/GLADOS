@@ -1,6 +1,31 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
 export default class UserModel extends Model {
+  
+  /* fields */
+  
+  declare displayName: string;
+  
+  declare promo: string;
+  
+  declare login: string;
+  
+  /* auto-generated fields */
+  
+  declare id: number;
+  
+  declare createdAt: Date;
+  
+  declare updatedAt: Date;
+  
+  declare discordId: string;
+  
+  declare cursus: string;
+  
+  declare verificationCode: number;
+  
+  declare verified: boolean;
+
   public static definition(sequelize: Sequelize) {
     UserModel.init(
       {
@@ -21,6 +46,11 @@ export default class UserModel extends Model {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
+        verified: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
       },
       {
         tableName: 'user',
@@ -31,19 +61,4 @@ export default class UserModel extends Model {
 
   public static associate() {}
 
-  /* fields */
-
-  public displayName!: string;
-
-  public promo!: string;
-
-  public login!: string;
-
-  /* auto-generated fields */
-
-  public id!: number;
-
-  public createdAt!: Date;
-
-  public updatedAt!: Date;
 }

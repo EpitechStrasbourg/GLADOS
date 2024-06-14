@@ -5,6 +5,7 @@ import generateVerificationCode from '@/utils/verificationCode';
 
 import { SlashCommand, SlashCommandConfig } from '@/types/command';
 import Logger from '@/lib/logger';
+import { Op } from 'sequelize';
 
 const config: SlashCommandConfig = {
   description: 'Utilisez cette commande pour vous connecter à votre compte Epitech.',
@@ -37,6 +38,28 @@ const command: SlashCommand = {
     }
 
     try {
+        const where = {
+          [Op.or]: [
+            { login: email },
+            { discordId: interaction.user.id },
+          ],
+        }
+        // verify if the user is already in the database and verify if the user is already verified
+        const user = await UserModel.findOne({where});
+        if (user && user.verified) {
+          interaction.editReply('Votre compte est déjà vérifié.');
+          return;
+        }
+
+        // verify 5 minutes between each email
+        if (user && new Date().getTime() - user.updatedAt.getTime() < 300000) {
+          interaction.editReply(
+            'Un email a déjà été envoyé il y a moins de 5 minutes. Veuillez patienter.',
+          );
+          return;
+        }
+
+
       const verificationCode = generateVerificationCode();
 
       Logger.debug(
@@ -45,10 +68,10 @@ const command: SlashCommand = {
       );
       await sendEmailToUser(email, verificationCode, interaction.user.tag);
 
-      if (await UserModel.findOne({ where: { login: email } })) {
-        UserModel.update(
+      if (user) {
+        await UserModel.update(
           { verificationCode },
-          { where: { login: email } },
+          { where },
         );
       } else {
         await UserModel.create({
