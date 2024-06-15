@@ -5,7 +5,6 @@ import Logger from '@/lib/logger';
 import env from '@/env';
 import ensureRoleExists from '@/utils/ensureRoleExists';
 import ensureChannelExists from '@/utils/ensureChannelExists';
-import { Colors, PermissionResolvable } from 'discord.js';
 import stringToChannelType from '@/utils/stringToChannelType';
 import findOrCreateCategory from '@/configModule/findOrCreateCategory';
 
@@ -28,8 +27,13 @@ export default async (client: DiscordClient) => {
   if (guild) {
     if (config.roles) {
       for (const roleConfig of config.roles) {
-        const rolePermissions = roleConfig.permissions as PermissionResolvable[];
-        await ensureRoleExists(guild, roleConfig.name, Colors.Default, rolePermissions);
+        await ensureRoleExists(
+          guild,
+          roleConfig.name,
+          roleConfig.color,
+          roleConfig.permissions,
+          roleConfig.displaySeparately,
+        );
       }
     } else {
       Logger.warn('No roles found in config.');

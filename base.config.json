@@ -28,103 +28,172 @@
   "roles": [
     {
       "name": "Externe",
-      "permissions": ""
+      "permissions": [
+        "SEND_MESSAGES",
+        "CONNECT",
+        "VIEW_CHANNEL"
+      ],
+      "color": "#D3D3D3",
+      "displaySeparately": true
     },
     {
       "name": "Étudiant",
-      "permissions": ""
+      "permissions": [
+        "SEND_MESSAGES",
+        "READ_MESSAGE_HISTORY",
+        "CONNECT",
+        "SPEAK",
+        "STREAM",
+        "VIEW_CHANNEL"
+      ],
+      "color": "#1E90FF",
+      "displaySeparately": false
     },
     {
       "name": "Pédago",
-      "permissions": ""
+      "permissions": [
+        "KICK_MEMBERS",
+        "MANAGE_MESSAGES",
+        "MUTE_MEMBERS",
+        "DEAFEN_MEMBERS",
+        "MOVE_MEMBERS",
+        "VIEW_AUDIT_LOG",
+        "VIEW_CHANNEL"
+      ],
+      "color": "#32CD32",
+      "displaySeparately": false
     },
     {
       "name": "DPR",
-      "permissions": ""
+      "permissions": [
+        "KICK_MEMBERS",
+        "BAN_MEMBERS",
+        "MODERATE_MEMBERS",
+        "MANAGE_MESSAGES",
+        "VIEW_AUDIT_LOG",
+        "MUTE_MEMBERS",
+        "DEAFEN_MEMBERS",
+        "MOVE_MEMBERS",
+        "PRIORITY_SPEAKER",
+        "VIEW_CHANNEL"
+      ],
+      "color": "#00008B",
+      "displaySeparately": true
     },
     {
       "name": "Responsable de module",
-      "permissions": ""
+      "permissions": [
+        "MODERATE_MEMBERS",
+        "KICK_MEMBERS",
+        "MANAGE_MESSAGES",
+        "MUTE_MEMBERS",
+        "DEAFEN_MEMBERS",
+        "MOVE_MEMBERS",
+        "VIEW_AUDIT_LOG",
+        "VIEW_CHANNEL"
+      ],
+      "color": "#008080",
+      "displaySeparately": true
     },
     {
       "name": "Rennes",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Lyon",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Bruxelles",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Cotonou",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Berlin",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Barcelona",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Moulins",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Paris",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Nantes",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Nice",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Montpellier",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Lille",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Bordeaux",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Toulouse",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Mulhouse",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Nancy",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Strasbourg",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "La Réunion",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Marseille",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     },
     {
       "name": "Abidjan",
-      "permissions": ""
+      "permissions": [],
+      "color": "#FFA500"
     }
   ]
 }
