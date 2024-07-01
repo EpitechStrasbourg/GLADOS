@@ -1,9 +1,10 @@
 import DiscordClient from '@/lib/client';
 import User from '@/database/models/model.user';
 import {
-  fetchUserData, fetchUserRoadblocks, syncRolesAndRename, syncRolesModules,
+  fetchUserData, fetchUserGrades, syncRolesAndRename, syncRolesModules,
 } from '@/utils/userSynchronization';
 import env from '@/env';
+import Logger from '@/lib/logger';
 
 export default async function syncStudentInfo(client: DiscordClient): Promise<void> {
   await client.guilds.fetch();
@@ -20,13 +21,13 @@ export default async function syncStudentInfo(client: DiscordClient): Promise<vo
                 user.getDataValue('discordId'),
                 userData,
       );
-      const roadblockData = await fetchUserRoadblocks(login);
-      if (!roadblockData) {
+      const grade = await fetchUserGrades(login);
+      if (!grade) {
         return;
       }
-      await syncRolesModules(client.guilds.cache.get(env.GUILD_ID)!, user.getDataValue('discordId'), roadblockData);
+      await syncRolesModules(client.guilds.cache.get(env.GUILD_ID)!, user.getDataValue('discordId'), grade, userData);
     }));
   } catch (err) {
-    console.log(err);
+    Logger.error(err);
   }
 }
