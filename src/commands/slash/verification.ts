@@ -1,6 +1,6 @@
 import { UserModel } from '@/database/models';
 import {
-  fetchUserData, fetchUserRoadblocks, syncRolesAndRename, syncRolesModules,
+  fetchUserData, fetchUserGrades, syncRolesAndRename, syncRolesModules,
 } from '@/utils/userSynchronization';
 
 import { SlashCommand, SlashCommandConfig } from '@/types/command';
@@ -51,8 +51,8 @@ const command: SlashCommand = {
         interaction.user.id,
         userData,
       );
-      const roadblockData = await fetchUserRoadblocks(login);
-      if (roadblockData) await syncRolesModules(interaction.guild!, interaction.user.id, roadblockData);
+      const grade = await fetchUserGrades(login);
+      if (grade) await syncRolesModules(interaction.guild!, interaction.user.id, grade, userData);
 
       await UserModel.update(
         { verified: true },
