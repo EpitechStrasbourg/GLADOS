@@ -9,6 +9,8 @@ import _initModules from '@/configModule/initModules';
 import _saveConfigToDatabase from '@/configModule/saveConfigToDatabase';
 import _sortChannelsInCategory from '@/configModule/sortChannelsInCategory';
 import _sortPromotionCatetegory from '@/configModule/sortPromotionCategory';
+import _getRespRole from '@/configModule/getRespRole';
+
 import {
   ConfigFile,
   ConfigFileChannel,
@@ -95,7 +97,10 @@ export default class ConfigModule {
 
       const role = await this.findOrCreateRole(promotion);
 
-      await this.initChannels(category, configPromotion.channels, role);
+      // get Resp role for key
+
+      const respRole = await this.getRespRole(key);
+      await this.initChannels(category, configPromotion.channels, role, respRole);
       await this.initModules(category, configPromotion.modules, key);
 
       await this.deleteNotFoundChannels(category, key);
@@ -134,6 +139,10 @@ export default class ConfigModule {
     return _generateCommonForPromotion(this._guild, this._config);
   }
 
+  async getRespRole(key: string) {
+    return _getRespRole(this._guild, key);
+  }
+
   private async sortChannelsInCategory(
     category: CategoryChannel,
     channelsConfig: ConfigFileChannel[],
@@ -155,8 +164,9 @@ export default class ConfigModule {
     category: CategoryChannel,
     channelsConfig: ConfigFileChannel[],
     role: Role,
+    respRole: Role[],
   ) {
-    return _initChannels(this._guild, category, channelsConfig, role);
+    return _initChannels(this._guild, category, channelsConfig, role, respRole);
   }
 
   private async initModules(

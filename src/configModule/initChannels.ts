@@ -1,7 +1,9 @@
 import { ConfigFileChannel } from '@/configModule/types';
 import { formatChannelName } from '@/utils/formatConfig';
 import stringToChannelType from '@/utils/stringToChannelType';
-import { CategoryChannel, Guild, Role } from 'discord.js';
+import {
+  CategoryChannel, Guild, OverwriteResolvable, Role,
+} from 'discord.js';
 
 /**
  * Initialize channels for a category
@@ -16,6 +18,7 @@ export default async function initChannels(
   category: CategoryChannel,
   channelsConfig: ConfigFileChannel[],
   role: Role,
+  respRole: Role[],
 ) {
   try {
     await Promise.allSettled(channelsConfig.map(async (channelConfig) => {
@@ -26,21 +29,32 @@ export default async function initChannels(
           && channel.parentId === category.id,
       );
 
+      const permissionOverwrites: OverwriteResolvable[] = [
+        {
+          deny: ['ViewChannel'],
+          id: guild.id,
+        },
+        {
+          allow: ['ViewChannel'],
+          id: role.id,
+        },
+      ];
+      respRole.forEach((r) => {
+        permissionOverwrites.push({
+          allow: ['ViewChannel'],
+          id: r.id,
+        });
+      });
       if (!existingChannel) {
         await guild.channels.create({
           name: channelConfig.name,
           type: stringToChannelType(channelConfig.type),
           parent: category,
-          permissionOverwrites: [
-            {
-              deny: ['ViewChannel'],
-              id: guild.id,
-            },
-            {
-              allow: ['ViewChannel'],
-              id: role.id,
-            },
-          ],
+          permissionOverwrites,
+        });
+      } else {
+        await existingChannel.edit({
+          permissionOverwrites,
         });
       }
     }));

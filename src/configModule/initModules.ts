@@ -1,6 +1,8 @@
 import findOrCreateRole from '@/configModule/findOrCreateRole';
 import { ConfigFileModule } from '@/configModule/types';
-import { CategoryChannel, ChannelType, Guild } from 'discord.js';
+import {
+  CategoryChannel, ChannelType, Guild, OverwriteResolvable,
+} from 'discord.js';
 
 /**
  * Initialize modules for a promotion
@@ -22,7 +24,10 @@ export default async function initModules(
         guild,
         `${promotionName.split('_').join('')} ${module.name.toUpperCase()}`,
       );
-
+      const roleResp = await findOrCreateRole(
+        guild,
+        `Resp ${promotionName.split('_').join('')} ${module.name.toUpperCase()}`,
+      );
       const existingChannel = guild.channels.cache.find(
         (channel) => channel
           && channel.type === ChannelType.GuildForum
@@ -30,21 +35,30 @@ export default async function initModules(
           && channel.parentId === category.id,
       );
 
+      const permissionOverwrites: OverwriteResolvable[] = [
+        {
+          deny: ['ViewChannel'],
+          id: guild.id,
+        },
+        {
+          allow: ['ViewChannel'],
+          id: role.id,
+        },
+        {
+          allow: ['ViewChannel'],
+          id: roleResp.id,
+        },
+      ];
       if (!existingChannel) {
         await guild.channels.create({
           name: module.name,
           type: ChannelType.GuildForum,
           parent: category,
-          permissionOverwrites: [
-            {
-              deny: ['ViewChannel'],
-              id: guild.id,
-            },
-            {
-              allow: ['ViewChannel'],
-              id: role.id,
-            },
-          ],
+          permissionOverwrites,
+        });
+      } else {
+        await existingChannel.edit({
+          permissionOverwrites,
         });
       }
     }));

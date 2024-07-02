@@ -12,6 +12,7 @@ import { SauronGradesRequest } from '@/types/userSauronGrade';
 import ConfigModule from '@/configModule';
 import { ConfigFilePromotion } from '@/configModule/types';
 import { UserSauronUnitsResponsible } from '@/types/userSauronUnitsResponsible';
+import formatModulesYear from './formatModulesYear';
 import getPromotionFromTekYear from './getPromotionFromTekYear';
 import ensureRoleExists from './ensureRoleExists';
 
@@ -227,11 +228,13 @@ export async function syncRolesAndRename(
       const unitResponsible = await fetchUnitResponsible(user.login);
       if (unitResponsible) {
         await Promise.allSettled(unitResponsible.units.map(async (unit) => {
-          const unitRole = await ensureRoleExists(guild, `Resp ${unit}`);
+          const unitName = formatModulesYear(unit);
+          const unitRole = await ensureRoleExists(guild, `Resp ${unitName}`);
           if (!unitRole) {
-            Logger.error('error', `Role not found: Resp ${unit}`);
+            Logger.error('error', `Role not found: Resp ${unitName}`);
           } else {
             Logger.debug('unit role', unitRole);
+            if (userRoles.includes(unitRole.id)) return;
             userRoles.push(unitRole.id);
           }
         }));
