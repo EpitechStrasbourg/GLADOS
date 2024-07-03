@@ -17,6 +17,7 @@ export default async function initModules(
   modules: ConfigFileModule[],
   promotionName: string,
   guild: Guild,
+  rolesResp: Role[],
 ) {
   try {
     await Promise.allSettled(modules.map(async (module) => {
@@ -34,7 +35,8 @@ export default async function initModules(
           && channel.name === module.name
           && channel.parentId === category.id,
       );
-
+      rolesResp.push(roleResp);
+      rolesResp.push(role);
       const permissionOverwrites: OverwriteResolvable[] = [
         {
           deny: ['ViewChannel'],
@@ -49,6 +51,12 @@ export default async function initModules(
           id: roleResp.id,
         },
       ];
+      rolesResp.forEach((r) => {
+        permissionOverwrites.push({
+          allow: ['ViewChannel'],
+          id: r.id,
+        });
+      });
       if (!existingChannel) {
         await guild.channels.create({
           name: module.name,

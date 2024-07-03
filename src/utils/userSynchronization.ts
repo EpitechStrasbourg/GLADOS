@@ -218,6 +218,15 @@ export async function syncRolesAndRename(
       userRoles.push(guildRole.id);
     }
 
+    if (user.roles.includes('dpr')) {
+      const guildRole = roles.find((r) => r.name === 'DPR');
+      if (!guildRole) {
+        Logger.error('error', 'Role not found: DPR');
+        return;
+      }
+      userRoles.push(guildRole.id);
+    }
+
     if (user.roles.includes('units_responsible')) {
       const guildRole = roles.find((r) => r.name === 'Responsable de module');
       if (!guildRole) {

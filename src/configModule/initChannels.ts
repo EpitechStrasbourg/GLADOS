@@ -18,7 +18,7 @@ export default async function initChannels(
   category: CategoryChannel,
   channelsConfig: ConfigFileChannel[],
   role: Role,
-  respRole: Role[],
+  rolesResp: Role[],
 ) {
   try {
     await Promise.allSettled(channelsConfig.map(async (channelConfig) => {
@@ -28,18 +28,14 @@ export default async function initChannels(
           && formatChannelName(channel.name) === channelConfig.name
           && channel.parentId === category.id,
       );
-
+      rolesResp.push(role);
       const permissionOverwrites: OverwriteResolvable[] = [
         {
           deny: ['ViewChannel'],
           id: guild.id,
         },
-        {
-          allow: ['ViewChannel'],
-          id: role.id,
-        },
       ];
-      respRole.forEach((r) => {
+      rolesResp.forEach((r) => {
         permissionOverwrites.push({
           allow: ['ViewChannel'],
           id: r.id,
