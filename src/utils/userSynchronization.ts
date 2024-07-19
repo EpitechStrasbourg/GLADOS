@@ -8,16 +8,19 @@ import { Guild, GuildMember, Role } from 'discord.js';
 
 import { City, UserSauronInfo } from '@/types/userSauronInfo';
 import Logger from '@/lib/logger';
-import { Roadblocks, RoadblocksResult } from '@/types/userSauronRoadblock';
+import { SauronGradesRequest } from '@/types/userSauronGrade';
 import ConfigModule from '@/configModule';
 import { ConfigFilePromotion } from '@/configModule/types';
+import { UserSauronUnitsResponsible } from '@/types/userSauronUnitsResponsible';
+import formatModulesYear from './formatModulesYear';
 import getPromotionFromTekYear from './getPromotionFromTekYear';
+import ensureRoleExists from './ensureRoleExists';
 
 const PGE_cycles = ['bachelor', 'master'];
 const PGE_suffix = 'PGE ';
 const studentRoleName = 'Étudiant';
 
-export async function fetchUserRoadblocks(login: string): Promise< RoadblocksResult | null> {
+export async function fetchUserGrades(login: string): Promise< SauronGradesRequest | null> {
   const config = {
     method: 'GET',
     headers: {
@@ -26,7 +29,7 @@ export async function fetchUserRoadblocks(login: string): Promise< RoadblocksRes
     },
   };
   const response = await fetch(
-    `https://api.sauron.epitest.eu/api/students/roadblocks?login=${login}&active_only=true&projected=false&limit=1&offset=0`,
+    `https://api.sauron.epitest.eu/api/students/grades?login=${login}`,
     config,
   );
   const data = await response.json();
@@ -37,11 +40,7 @@ export async function fetchUserRoadblocks(login: string): Promise< RoadblocksRes
     );
     return null;
   }
-  if (data.results.length === 0) {
-    Logger.error('error', `No results found for user ${login}`);
-    return null;
-  }
-  return data.results[0] as RoadblocksResult;
+  return data as SauronGradesRequest;
 }
 
 export async function fetchUserData(
@@ -75,11 +74,35 @@ export async function fetchUserData(
   }
 }
 
-function extractUnitFromRoadblock(roadblocks: Roadblocks, key: keyof Roadblocks) {
-  if (roadblocks[key].units) {
-    return roadblocks[key].units!.map((unit) => unit.unit.toUpperCase());
+export async function fetchUnitResponsible(
+  login: string,
+): Promise<UserSauronUnitsResponsible | null> {
+  try {
+    const config = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${process.env.SAURON_TOKEN}`,
+      },
+    };
+    const response = await fetch(
+      `https://api.sauron.epitest.eu/api/responsibles/${login}/modules`,
+      config,
+    );
+
+    const data = await response.json();
+    if (!response.ok) {
+      Logger.error(
+        'error',
+        `Fetch failed for user ${login}. Error: ${response.status} ${data.error}`,
+      );
+      return null;
+    }
+    return data;
+  } catch (error) {
+    Logger.error('error', `Error fetching student data: ${error}`);
+    return null;
   }
-  return [];
 }
 
 async function fetchMember(guild: Guild, memberId: string): Promise<GuildMember | null> {
@@ -101,10 +124,6 @@ async function fetchConfig() {
   return config;
 }
 
-function isRelevantRoadblock(roadblock: string): boolean {
-  return ['softskills', 'technical_foundation', 'technical_supplement', 'professional_writings'].includes(roadblock);
-}
-
 async function addRolesToMember(member: GuildMember, roles: Role[]): Promise<void> {
   try {
     await Promise.all(roles.map((role) => member.roles.add(role)));
@@ -114,7 +133,7 @@ async function addRolesToMember(member: GuildMember, roles: Role[]): Promise<voi
 }
 
 async function getUserRoles(
-  user: RoadblocksResult,
+  grades: SauronGradesRequest,
   configModules: ConfigFilePromotion,
   roles: Role[],
   roleName: string,
@@ -122,34 +141,33 @@ async function getUserRoles(
   const userRoles: Role[] = [];
   configModules.modules.forEach((module) => {
     module.sub_modules.forEach((sub) => {
-      Object.keys(user.roadblocks).forEach((roadblock) => {
-        if (isRelevantRoadblock(roadblock)) {
-          const units = extractUnitFromRoadblock(user.roadblocks, roadblock as keyof typeof user.roadblocks);
-          if (units.includes(sub.toUpperCase())) {
-            const guildRole = roles.find((r) => r.name === `${roleName.replace('_', '')} ${module.name.toUpperCase()}`);
-            if (guildRole) {
-              userRoles.push(guildRole);
-            } else {
-              console.log('Role not found', { moduleName: module.name });
-            }
+      grades.results
+        .filter((grade) => grade.instance.module.code_module === sub)
+        .forEach((_) => {
+          const roleNameFormatted = `${roleName.replace('_', '')} ${module.name.toUpperCase()}`;
+          const guildRole = roles.find((r) => r.name === roleNameFormatted);
+
+          if (guildRole) {
+            userRoles.push(guildRole);
+          } else {
+            Logger.error('Role not found', { moduleName: module.name });
           }
-        }
-      });
+        });
     });
   });
   return userRoles;
 }
 
-export async function syncRolesModules(guild: Guild, memberId: string, user: RoadblocksResult): Promise<void> {
+export async function syncRolesModules(guild: Guild, memberId: string, grades: SauronGradesRequest, user: UserSauronInfo): Promise<void> {
   try {
     const member = await fetchMember(guild, memberId);
     if (!member) return;
 
     const roles = await fetchRoles(guild);
     const config = await fetchConfig();
-    if (!config) return;
+    if (!config || !user.promo) return;
 
-    const promotionYear = getPromotionFromTekYear(user.student.promo.promotion_year);
+    const promotionYear = getPromotionFromTekYear(user.promo.promotion_year);
     const roleName = `${PGE_suffix}${promotionYear}`.replace(' ', '_');
     const configModules = config[roleName] as ConfigFilePromotion;
     if (!configModules) {
@@ -157,10 +175,10 @@ export async function syncRolesModules(guild: Guild, memberId: string, user: Roa
       return;
     }
 
-    const userRoles = await getUserRoles(user, configModules, roles, roleName);
+    const userRoles = await getUserRoles(grades, configModules, roles, roleName);
     await addRolesToMember(member, userRoles);
   } catch (error) {
-    Logger.error('Error syncing module roles', { error });
+    Logger.error('Error syncing module roles', error);
   }
 }
 
@@ -198,6 +216,38 @@ export async function syncRolesAndRename(
         return;
       }
       userRoles.push(guildRole.id);
+    }
+
+    if (user.roles.includes('dpr')) {
+      const guildRole = roles.find((r) => r.name === 'DPR');
+      if (!guildRole) {
+        Logger.error('error', 'Role not found: DPR');
+        return;
+      }
+      userRoles.push(guildRole.id);
+    }
+
+    if (user.roles.includes('units_responsible')) {
+      const guildRole = roles.find((r) => r.name === 'Responsable de module');
+      if (!guildRole) {
+        Logger.error('error', 'Role not found: Responsable de module');
+        return;
+      }
+      userRoles.push(guildRole.id);
+      const unitResponsible = await fetchUnitResponsible(user.login);
+      if (unitResponsible) {
+        await Promise.allSettled(unitResponsible.units.map(async (unit) => {
+          const unitName = formatModulesYear(unit);
+          const unitRole = await ensureRoleExists(guild, `Resp ${unitName}`);
+          if (!unitRole) {
+            Logger.error('error', `Role not found: Resp ${unitName}`);
+          } else {
+            Logger.debug('unit role', unitRole);
+            if (userRoles.includes(unitRole.id)) return;
+            userRoles.push(unitRole.id);
+          }
+        }));
+      }
     }
 
     user.cities.forEach((city: City) => {

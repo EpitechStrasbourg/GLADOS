@@ -1,6 +1,8 @@
 import findOrCreateRole from '@/configModule/findOrCreateRole';
 import { ConfigFileModule } from '@/configModule/types';
-import { CategoryChannel, ChannelType, Guild } from 'discord.js';
+import {
+  CategoryChannel, ChannelType, Guild, OverwriteResolvable,
+} from 'discord.js';
 
 /**
  * Initialize modules for a promotion
@@ -15,6 +17,7 @@ export default async function initModules(
   modules: ConfigFileModule[],
   promotionName: string,
   guild: Guild,
+  rolesResp: Role[],
 ) {
   try {
     await Promise.allSettled(modules.map(async (module) => {
@@ -22,29 +25,48 @@ export default async function initModules(
         guild,
         `${promotionName.split('_').join('')} ${module.name.toUpperCase()}`,
       );
-
+      const roleResp = await findOrCreateRole(
+        guild,
+        `Resp ${promotionName.split('_').join('')} ${module.name.toUpperCase()}`,
+      );
       const existingChannel = guild.channels.cache.find(
         (channel) => channel
           && channel.type === ChannelType.GuildForum
           && channel.name === module.name
           && channel.parentId === category.id,
       );
-
+      rolesResp.push(roleResp);
+      rolesResp.push(role);
+      const permissionOverwrites: OverwriteResolvable[] = [
+        {
+          deny: ['ViewChannel'],
+          id: guild.id,
+        },
+        {
+          allow: ['ViewChannel'],
+          id: role.id,
+        },
+        {
+          allow: ['ViewChannel'],
+          id: roleResp.id,
+        },
+      ];
+      rolesResp.forEach((r) => {
+        permissionOverwrites.push({
+          allow: ['ViewChannel'],
+          id: r.id,
+        });
+      });
       if (!existingChannel) {
         await guild.channels.create({
           name: module.name,
           type: ChannelType.GuildForum,
           parent: category,
-          permissionOverwrites: [
-            {
-              deny: ['ViewChannel'],
-              id: guild.id,
-            },
-            {
-              allow: ['ViewChannel'],
-              id: role.id,
-            },
-          ],
+          permissionOverwrites,
+        });
+      } else {
+        await existingChannel.edit({
+          permissionOverwrites,
         });
       }
     }));

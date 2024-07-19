@@ -9,6 +9,9 @@ import _initModules from '@/configModule/initModules';
 import _saveConfigToDatabase from '@/configModule/saveConfigToDatabase';
 import _sortChannelsInCategory from '@/configModule/sortChannelsInCategory';
 import _sortPromotionCatetegory from '@/configModule/sortPromotionCategory';
+import _getRolesRespModule from '@/configModule/getRolesRespModule';
+import _getRolesPedago from '@/configModule/getRolesPedago';
+
 import {
   ConfigFile,
   ConfigFileChannel,
@@ -94,9 +97,11 @@ export default class ConfigModule {
       if (!category) throw new Error(`Failed to initialize category for ${promotion}`);
 
       const role = await this.findOrCreateRole(promotion);
-
-      await this.initChannels(category, configPromotion.channels, role);
-      await this.initModules(category, configPromotion.modules, key);
+      const rolesResPedago: Role[] = await this.getRolesPedago();
+      console.log('rolesResPedago', rolesResPedago);
+      const rolesRespModule: Role[] = await this.getRolesRespModule(key);
+      await this.initChannels(category, configPromotion.channels, role, rolesRespModule.concat(rolesResPedago));
+      await this.initModules(category, configPromotion.modules, key, rolesResPedago);
 
       await this.deleteNotFoundChannels(category, key);
 
@@ -134,6 +139,14 @@ export default class ConfigModule {
     return _generateCommonForPromotion(this._guild, this._config);
   }
 
+  async getRolesRespModule(key: string) {
+    return _getRolesRespModule(this._guild, key);
+  }
+
+  async getRolesPedago() {
+    return _getRolesPedago(this._guild);
+  }
+
   private async sortChannelsInCategory(
     category: CategoryChannel,
     channelsConfig: ConfigFileChannel[],
@@ -155,16 +168,18 @@ export default class ConfigModule {
     category: CategoryChannel,
     channelsConfig: ConfigFileChannel[],
     role: Role,
+    rolesResp: Role[],
   ) {
-    return _initChannels(this._guild, category, channelsConfig, role);
+    return _initChannels(this._guild, category, channelsConfig, role, rolesResp);
   }
 
   private async initModules(
     category: CategoryChannel,
     modules: ConfigFileModule[],
     promotionName: string,
+    rolesResp: Role[],
   ) {
-    return _initModules(category, modules, promotionName, this._guild);
+    return _initModules(category, modules, promotionName, this._guild, rolesResp);
   }
 
   private async findOrCreateRole(roleName: string): Promise<Role> {
