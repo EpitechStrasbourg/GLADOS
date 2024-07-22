@@ -11,8 +11,7 @@ export default async (sequelize: Sequelize) => {
     model.associate();
   });
 
-  await sequelize.sync();
-  await sequelize.authenticate();
+  return sequelize.authenticate();
 };
 
 export const sequelize = new Sequelize(

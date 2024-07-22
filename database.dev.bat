@@ -1,1 +1,0 @@
-docker compose -f docker-compose.yaml up glados_database

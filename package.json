@@ -1,16 +1,17 @@
 {
-  "name": "discordjs-template-ts",
-  "description": "Template for a discord.js bot with TypeScript",
+  "name": "discordjs-discord-bot-epitech",
+  "description": "Discord bot for Epitech",
   "version": "14.14.1-0.1.5",
   "license": "ISC",
   "main": "dist/index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon",
     "build": "tsup && tsc-alias",
-    "start": "cross-env NODE_ENV=production node ./dist/index.js",
+    "start": "node ./dist/index.js",
+    "prod": "npm run db:migrate up && cross-env NODE_ENV=production node ./dist/index.js",
+    "db:migrate": "npm run build && node dist/database/database.migrate.js",
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
     "lint": "eslint \"./src/**/*.ts\"",
-    "db:migrate": "npm run build && node dist/database/database.migrate.js",
     "prepare": "husky",
     "precommit": "npm run lint"
   },

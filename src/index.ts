@@ -10,7 +10,7 @@ import Logger from '@/lib/logger';
 
 import syncStudentInfo from '@/jobs/syncStudentInfo';
 import syncConfig from '@/jobs/syncConfig';
-import env from './env';
+import env from '@/env';
 
 interface DiscordResponse {
   length: number
@@ -42,8 +42,9 @@ const rest = new REST({ version: '10' }).setToken(env.DISCORD_TOKEN);
     client.slashConfigs = slashConfigs;
 
     Logger.debug(`Successfully reloaded ${res.length} (/) commands.`);
-    await client.login(env.DISCORD_TOKEN);
+
     await connectToDatabase(sequelize);
+    await client.login(env.DISCORD_TOKEN);
     const jobController = new JobController();
     jobController.create(() => {
       syncConfig(client);
@@ -52,7 +53,7 @@ const rest = new REST({ version: '10' }).setToken(env.DISCORD_TOKEN);
       syncStudentInfo(client);
     }, '0 * * * *');
   } catch (error) {
-    Logger.error(`Error refreshing application (/) commands: \n\t${error}`);
+    Logger.error(`Error launching application: \n\t${error}`);
   }
 })();
 
